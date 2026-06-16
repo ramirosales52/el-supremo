@@ -30,7 +30,7 @@ export default function Checkout() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex-1 bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto px-4 text-center">
           <span className="text-6xl block mb-4">✅</span>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Pedido confirmado</h2>
