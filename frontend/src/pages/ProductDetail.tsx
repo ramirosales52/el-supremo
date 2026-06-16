@@ -1,0 +1,241 @@
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { productsApi } from '../api/products';
+import { useCart } from '../context/CartContext';
+import { formatARS, SUPREMO_LISTO_PRICE, QUANTITIES_KG } from '../lib/utils';
+import { Check, ChevronLeft } from 'lucide-react';
+import type { Product, CutOption } from '../types';
+
+export default function ProductDetail() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { addItem } = useCart();
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedCut, setSelectedCut] = useState<CutOption | null>(null);
+  const [qty, setQty] = useState(1);
+  const [customQty, setCustomQty] = useState(false);
+  const [supremo, setSupremo] = useState(true);
+  const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    productsApi.getById(Number(id))
+      .then((p) => {
+        setProduct(p);
+        setSelectedCut(p.cutOptions[0] ?? null);
+        document.title = `${p.name} · El Supremo`;
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const isUnit = product?.unit === 'unidad';
+
+  const modifier = selectedCut?.priceModifier ?? 0;
+  const unitPrice = product ? Number(product.basePrice) + Number(modifier) : 0;
+  const finalQty = customQty ? qty : qty;
+
+  const lineTotal = useMemo(
+    () => finalQty * unitPrice + (supremo ? SUPREMO_LISTO_PRICE : 0),
+    [finalQty, unitPrice, supremo],
+  );
+
+  const handleAdd = () => {
+    if (!product || finalQty <= 0) return;
+    addItem(product, selectedCut, finalQty, notes.trim(), supremo);
+    navigate('/carrito');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-5xl px-4 py-20">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-muted w-1/3" />
+            <div className="h-64 bg-muted" />
+            <div className="h-6 bg-muted w-1/2" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+          <h1 className="font-display text-4xl">Producto no encontrado</h1>
+          <Link to="/productos" className="mt-4 inline-block cursor-pointer font-semibold text-primary underline">Volver al catálogo</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const hasCuts = product.cutOptions.length > 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+    <div className="mx-auto max-w-5xl px-4 py-8 md:py-12">
+      <Link to="/productos" className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-primary">
+        <ChevronLeft className="h-4 w-4" /> Volver
+      </Link>
+
+      <div className="mt-4 grid gap-10 md:grid-cols-[1.1fr_1fr]">
+        <div>
+          <span className="stamp text-primary">{isUnit ? 'Por unidad' : 'Por kilo'}</span>
+          <h1 className="mt-3 font-display text-5xl md:text-6xl">{product.name.toUpperCase()}</h1>
+          <p className="mt-3 text-lg text-muted-foreground">{product.description}</p>
+          <div className="mt-6 font-display text-5xl text-primary">
+            {formatARS(unitPrice)} <span className="text-xl text-muted-foreground">/ {isUnit ? 'unidad' : 'kg'}</span>
+          </div>
+        </div>
+
+        <aside className="border border-border bg-card p-6 md:sticky md:top-24 md:h-fit">
+          <div className="flex items-baseline justify-between">
+            <div className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Total estimado</div>
+            <div className="font-display text-3xl text-primary">{formatARS(lineTotal)}</div>
+          </div>
+          <button
+            onClick={handleAdd}
+            className="mt-4 w-full cursor-pointer bg-primary px-4 py-3 font-bold uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90"
+          >
+            Agregar al pedido
+          </button>
+          <p className="mt-3 text-center text-xs text-muted-foreground">Envío solo en Marcos Juárez</p>
+        </aside>
+      </div>
+
+      <div className="mt-12 space-y-10">
+        {hasCuts && (
+          <Step n={1} title="Elegí el corte">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {product.cutOptions.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCut(c)}
+                  className={`cursor-pointer flex items-start justify-between gap-3 border-2 p-4 text-left transition ${
+                    selectedCut?.id === c.id
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border bg-card hover:border-primary/40'
+                  }`}
+                >
+                  <div>
+                    <div className="font-semibold">{c.name}</div>
+                    {c.description && <div className="mt-0.5 text-xs text-muted-foreground">{c.description}</div>}
+                    {c.priceModifier != null && c.priceModifier > 0 && (
+                      <div className="mt-0.5 text-xs text-primary">+ {formatARS(c.priceModifier)}</div>
+                    )}
+                  </div>
+                  {selectedCut?.id === c.id && <Check className="h-5 w-5 shrink-0 text-primary" />}
+                </button>
+              ))}
+            </div>
+          </Step>
+        )}
+        <Step n={hasCuts ? 2 : 1} title={isUnit ? 'Elegí la cantidad' : 'Elegí el peso'}>
+          <div className="flex flex-wrap gap-2">
+            {(isUnit ? [1, 2, 3, 4, 5, 6] : QUANTITIES_KG).map((q) => (
+              <button
+                key={q}
+                onClick={() => { setQty(q); setCustomQty(false); }}
+                className={`cursor-pointer border-2 px-4 py-3 font-semibold transition ${
+                  !customQty && qty === q
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-card hover:border-primary/40'
+                }`}
+              >
+                {isUnit ? `${q} u.` : q < 1 ? `${q * 1000} g` : `${q} kg`}
+              </button>
+            ))}
+            <button
+              onClick={() => setCustomQty(true)}
+              className={`cursor-pointer border-2 px-4 py-3 font-semibold transition ${
+                customQty ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:border-primary/40'
+              }`}
+            >
+              Personalizado
+            </button>
+          </div>
+          {customQty && (
+            <div className="mt-4 flex items-center gap-3">
+              <input
+                type="number"
+                min={0.5}
+                step={0.1}
+                value={qty}
+                onChange={(e) => setQty(Math.max(0.5, parseFloat(e.target.value) || 0.5))}
+                className="w-32 border border-input bg-background px-3 py-2 text-lg font-semibold"
+              />
+              <span className="text-muted-foreground">{isUnit ? 'unidades' : 'kilos'}</span>
+            </div>
+          )}
+        </Step>
+        <Step n={hasCuts ? 3 : 2} title="¿Lo querés Supremo LISTO?">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => setSupremo(true)}
+              className={`cursor-pointer border-2 p-5 text-left transition ${
+                supremo ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/40'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="bg-primary px-1.5 py-0.5 font-display text-sm tracking-widest text-primary-foreground">LISTO</span>
+                <span className="font-display text-xl text-primary">+ {formatARS(SUPREMO_LISTO_PRICE)}</span>
+              </div>
+              <ul className="mt-3 space-y-1 text-sm">
+                {['Cortado', 'Porcionado', 'Separado para freezer', 'Etiquetado', 'Listo para cocinar'].map((x) => (
+                  <li key={x} className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" />{x}</li>
+                ))}
+              </ul>
+            </button>
+            <button
+              onClick={() => setSupremo(false)}
+              className={`cursor-pointer border-2 p-5 text-left transition ${
+                !supremo ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/40'
+              }`}
+            >
+              <div className="font-display text-lg">Estándar</div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Te lo enviamos cortado según elegiste, en una sola bolsa, sin porcionar.
+              </p>
+            </button>
+          </div>
+        </Step>
+        <Step n={hasCuts ? 4 : 3} title="Aclaraciones (opcional)">
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Ej: porciones de 250g para 2 personas, sin grasa, etc."
+            rows={3}
+            className="w-full border border-input bg-background px-3 py-2"
+          />
+        </Step>
+      </div>
+
+      <div className="sticky bottom-4 mt-10 md:hidden">
+        <button
+          onClick={handleAdd}
+          className="flex w-full cursor-pointer items-center justify-between bg-primary px-5 py-4 font-bold uppercase tracking-wider text-primary-foreground"
+        >
+          <span>Agregar · {formatARS(lineTotal)}</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+    </div>
+  );
+}
+
+function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <div className="mb-4 flex items-center gap-3">
+        <span className="flex h-8 w-8 items-center justify-center bg-secondary font-display text-secondary-foreground">{n}</span>
+        <h2 className="font-display text-2xl md:text-3xl">{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
