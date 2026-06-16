@@ -30,23 +30,25 @@ export default function Checkout() {
 
   if (success) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <span className="text-6xl block mb-4">✅</span>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Pedido confirmado</h2>
-        <p className="text-gray-500 mb-6">
-          Recibimos tu pedido. Te vamos a contactar para confirmar.
-        </p>
-        <button onClick={() => navigate('/')} className="px-6 py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider">
-          Seguir comprando
-        </button>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-lg mx-auto px-4 text-center">
+          <span className="text-6xl block mb-4">✅</span>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Pedido confirmado</h2>
+          <p className="text-gray-500 mb-6">
+            Recibimos tu pedido. Te vamos a contactar para confirmar.
+          </p>
+          <button onClick={() => navigate('/')} className="px-6 py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider">
+            Seguir comprando
+          </button>
+        </div>
       </div>
     );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName.trim() || !customerPhone.trim()) {
-      setError('Completá nombre y teléfono');
+    if (!customerName.trim() || !customerPhone.trim() || !customerAddress.trim()) {
+      setError('Completá nombre, teléfono y dirección');
       return;
     }
 
@@ -109,7 +111,7 @@ export default function Checkout() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Dirección <span className="text-gray-400">(opcional)</span>
+                  Dirección *
                 </label>
                 <input
                   type="text"
@@ -117,6 +119,7 @@ export default function Checkout() {
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   className="border border-gray-300 px-3 py-2 text-sm w-full bg-white text-gray-900"
                   placeholder="Calle y número"
+                  required
                 />
               </div>
             </div>

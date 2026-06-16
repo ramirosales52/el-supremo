@@ -8,3 +8,5 @@ build/
 coverage/
 .vite/
 *.tsbuildinfo
+.agents/
+skills-lock.json

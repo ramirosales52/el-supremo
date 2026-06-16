@@ -1,19 +1,33 @@
-import { apiFetch } from './client';
+import { supabase } from '../utils/supabase';
 import type { CutOption } from '../types';
 
 export const cutOptionsApi = {
-  getAll: () => apiFetch<CutOption[]>('/cut-options'),
-  getById: (id: number) => apiFetch<CutOption>(`/cut-options/${id}`),
-  create: (data: Partial<CutOption>) =>
-    apiFetch<CutOption>('/cut-options', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  update: (id: number, data: Partial<CutOption>) =>
-    apiFetch<CutOption>(`/cut-options/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-  delete: (id: number) =>
-    apiFetch<void>(`/cut-options/${id}`, { method: 'DELETE' }),
+  getAll: async () => {
+    const { data, error } = await supabase.from('cut_options').select('*').order('id');
+    if (error) throw error;
+    return (data ?? []) as CutOption[];
+  },
+
+  getById: async (id: number) => {
+    const { data, error } = await supabase.from('cut_options').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data as CutOption;
+  },
+
+  create: async (input: Partial<CutOption>) => {
+    const { data, error } = await supabase.from('cut_options').insert(input).select().single();
+    if (error) throw error;
+    return data as CutOption;
+  },
+
+  update: async (id: number, input: Partial<CutOption>) => {
+    const { error } = await supabase.from('cut_options').update(input).eq('id', id);
+    if (error) throw error;
+    return cutOptionsApi.getById(id);
+  },
+
+  delete: async (id: number) => {
+    const { error } = await supabase.from('cut_options').delete().eq('id', id);
+    if (error) throw error;
+  },
 };

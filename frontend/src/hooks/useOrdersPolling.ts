@@ -1,36 +1,29 @@
-import { useState, useEffect, useRef } from 'react';
-import { io, type Socket } from 'socket.io-client';
+import { useState, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
 import { ordersApi } from '../api/orders';
 import type { Order, OrderStatus } from '../types';
 
 export function useOrdersPolling() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     loadOrders();
 
-    try {
-      socketRef.current = io('http://localhost:3001/orders');
+    const channel = supabase
+      .channel('orders-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        () => loadOrders(),
+      )
+      .subscribe();
 
-      socketRef.current.on('order:created', (order: Order) => {
-        setOrders((prev) => [order, ...prev]);
-      });
-
-      socketRef.current.on('order:statusChanged', (updated: Order) => {
-        setOrders((prev) =>
-          prev.map((o) => (o.id === updated.id ? updated : o))
-        );
-      });
-    } catch {
-      // Fallback to polling if WebSocket fails
-      const interval = setInterval(loadOrders, 5000);
-      return () => clearInterval(interval);
-    }
+    const interval = setInterval(loadOrders, 10000);
 
     return () => {
-      socketRef.current?.disconnect();
+      channel.unsubscribe();
+      clearInterval(interval);
     };
   }, []);
 
