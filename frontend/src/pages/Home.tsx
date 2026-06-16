@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { categoriesApi } from '../api/categories';
-import type { Category } from '../types';
+import type { Category, Product } from '../types';
 import banner from '../assets/banner.png';
+import { productsApi } from '../api/products';
+import ProductCard from '../components/ProductCard';
+import Autoplay from 'embla-carousel-autoplay';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '../components/ui/carousel';
 
 const gradients = [
   'from-red-600 to-red-700',
@@ -21,6 +31,15 @@ export default function Home() {
     categoriesApi.getAll()
       .then(setCategories)
       .finally(() => setLoading(false));
+  }, []);
+
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
+
+  useEffect(() => {
+    productsApi.getAll()
+      .then(products => setFeaturedProducts(products.slice(0, 8)))
+      .finally(() => setFeaturedLoading(false));
   }, []);
 
   return (
@@ -84,6 +103,50 @@ export default function Home() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="bg-white max-w-full px-4 sm:px-6 lg:px-8 py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-4xl md:text-5xl text-zinc-900 uppercase tracking-[0.05em]" style={{ fontFamily: '"Anton", sans-serif', fontWeight: 400 }}>
+              PRODUCTOS DESTACADOS
+            </h2>
+            <p className="text-zinc-500 mt-3 text-lg">Los más elegidos por nuestros clientes</p>
+          </div>
+
+          {featuredLoading ? (
+            <div className="flex justify-center gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-full max-w-[280px] h-80 bg-zinc-100 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 4000,
+                }),
+              ]}
+              className="w-full px-12"
+            >
+              <CarouselContent>
+                {featuredProducts.map((product) => (
+                  <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <div className="p-1">
+                      <ProductCard product={product} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+<CarouselPrevious className="text-zinc-700 border-zinc-300 cursor-pointer" />
+<CarouselNext className="text-zinc-700 border-zinc-300 cursor-pointer" />
+            </Carousel>
+          )}
+        </div>
       </section>
 
       <section className="bg-white max-w-full px-4 sm:px-6 lg:px-8 py-20">
