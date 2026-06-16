@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { categoriesApi } from '../api/categories';
 import type { Category } from '../types';
@@ -8,14 +9,64 @@ import logo from '../assets/logo-blanco.png';
 export default function Navbar() {
   const { totalItems, totalPrice } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     categoriesApi.getAll().then(setCategories);
   }, []);
 
+  useEffect(() => {
+    if (searchOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [searchOpen]);
+
   const params = new URLSearchParams(location.search);
   const activeCategoryId = params.get('categoryId');
+  const currentSearch = params.get('search') || '';
+
+  const handleSearchToggle = () => {
+    const opening = !searchOpen;
+    setSearchOpen(opening);
+    if (opening) {
+      setSearchValue(currentSearch);
+      setTimeout(() => inputRef.current?.focus(), 0);
+    } else {
+      setSearchValue('');
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchValue.trim();
+    if (q) {
+      navigate(`/productos?search=${encodeURIComponent(q)}`);
+      setSearchOpen(false);
+      setSearchValue('');
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchValue('');
+    inputRef.current?.focus();
+    if (location.pathname === '/productos' && currentSearch) {
+      const newParams = new URLSearchParams(location.search);
+      newParams.delete('search');
+      const qs = newParams.toString();
+      navigate(qs ? `/productos?${qs}` : '/productos');
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setSearchOpen(false);
+      setSearchValue('');
+    }
+  };
 
   const isActive = (path: string, catId?: number) => {
     if (catId) return location.pathname === '/productos' && activeCategoryId === String(catId);
@@ -53,6 +104,15 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center ml-6">
+            <button
+              onClick={handleSearchToggle}
+              className="p-2 text-gray-300 hover:text-primary-500 transition-colors mr-1 cursor-pointer"
+              aria-label="Buscar productos"
+            >
+              <div className="w-9 h-9 rounded-full border-2 border-gray-600 flex items-center justify-center hover:border-primary-500 transition-colors cursor-pointer">
+                <Search className="w-4 h-4 stroke-[2.5]" />
+              </div>
+            </button>
             <Link
               to="/carrito"
               className="relative flex items-center gap-3 p-2 pr-3 text-gray-300 hover:text-primary-500 transition-colors"
@@ -76,6 +136,34 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      {searchOpen && (
+        <div className="border-t border-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                placeholder="Buscar productos..."
+                className="w-full bg-neutral-800 text-white border border-gray-700 pl-10 pr-10 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+              />
+              {searchValue && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors cursor-pointer"
+                  aria-label="Limpiar búsqueda"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

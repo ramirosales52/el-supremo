@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard';
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryIdParam = searchParams.get('categoryId');
+  const searchQuery = searchParams.get('search') || '';
   const selectedCategory = categoryIdParam ? Number(categoryIdParam) : null;
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,17 +21,16 @@ export default function Products() {
 
   useEffect(() => {
     setLoading(true);
-    productsApi.getAll(selectedCategory ?? undefined)
+    productsApi.getAll(selectedCategory ?? undefined, searchQuery || undefined)
       .then(setProducts)
       .finally(() => setLoading(false));
-  }, [selectedCategory]);
+  }, [selectedCategory, searchQuery]);
 
   const handleCategoryChange = (catId: number | null) => {
-    if (catId === null) {
-      setSearchParams({});
-    } else {
-      setSearchParams({ categoryId: String(catId) });
-    }
+    const params: Record<string, string> = {};
+    if (catId !== null) params.categoryId = String(catId);
+    if (searchQuery) params.search = searchQuery;
+    setSearchParams(params);
   };
 
   return (
@@ -62,6 +62,12 @@ export default function Products() {
           ))}
         </div>
 
+        {searchQuery && (
+          <p className="text-center text-lg text-gray-500 mb-8">
+            Resultados para: <span className="font-semibold text-gray-900">"{searchQuery}"</span>
+          </p>
+        )}
+
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
@@ -77,7 +83,7 @@ export default function Products() {
         ) : products.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
             <span className="text-5xl block mb-4">🔍</span>
-            <p className="text-lg">No hay productos en esta categoría</p>
+            <p className="text-lg">{searchQuery ? `Sin resultados para "${searchQuery}"` : 'No hay productos en esta categoría'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

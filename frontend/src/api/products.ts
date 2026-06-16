@@ -20,15 +20,26 @@ function mapProduct(raw: any): Product {
 }
 
 export const productsApi = {
-  getAll: async (categoryId?: number) => {
+  getAll: async (categoryId?: number, search?: string) => {
     let query = supabase
       .from('products')
       .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))')
       .eq('isAvailable', true);
     if (categoryId) query = query.eq('categoryId', categoryId);
+    if (search) {
+      const normalized = search.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      query = query.or(
+        `name.ilike.%${normalized}%,description.ilike.%${normalized}%,` +
+        `product_search_text.ilike.%${normalized}%`
+      );
+    }
     const { data, error } = await query.order('id');
     if (error) throw error;
     return (data ?? []).map(mapProduct);
+  },
+
+  search: async (query: string) => {
+    return productsApi.getAll(undefined, query);
   },
 
   getAllAdmin: async () => {
