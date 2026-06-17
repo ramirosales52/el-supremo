@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productsApi } from '../api/products';
 import { useCart } from '../context/CartContext';
 import { formatARS, SUPREMO_LISTO_PRICE, QUANTITIES_KG } from '../lib/utils';
+import { getProductImageUrl } from '../api/storage';
 import { Check, ChevronLeft } from 'lucide-react';
 import type { Product, CutOption } from '../types';
 
@@ -84,6 +85,15 @@ export default function ProductDetail() {
 
       <div className="mt-4 grid gap-10 md:grid-cols-[1.1fr_1fr]">
         <div>
+          {product.image && (
+            <div className="mb-6 overflow-hidden rounded-lg bg-muted">
+              <img
+                src={getProductImageUrl(product.image)}
+                alt={product.name}
+                className="w-full object-cover"
+              />
+            </div>
+          )}
           <span className="stamp text-primary">{isUnit ? 'Por unidad' : 'Por kilo'}</span>
           <h1 className="mt-3 font-display text-5xl md:text-6xl">{product.name.toUpperCase()}</h1>
           <p className="mt-3 text-lg text-muted-foreground">{product.description}</p>

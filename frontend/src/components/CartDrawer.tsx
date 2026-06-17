@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { getProductImageUrl } from '../api/storage';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -57,8 +58,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       key={`${item.product.id}-${item.cutOption?.id}`}
                       className="flex gap-3 pb-4 border-b border-gray-200"
                     >
-                      <div className="w-14 h-14 bg-gray-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl">🥩</span>
+                      <div className="w-14 h-14 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {item.product.image ? (
+                          <img
+                            src={getProductImageUrl(item.product.image)}
+                            alt={item.product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-2xl">🥩</span>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-900 text-sm truncate">

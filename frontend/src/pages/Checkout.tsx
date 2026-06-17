@@ -61,13 +61,18 @@ export default function Checkout() {
         customerPhone: customerPhone.trim(),
         customerAddress: customerAddress.trim() || undefined,
         notes: notes.trim() || undefined,
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-          unit: item.product.unit,
-          cutOptionId: item.cutOption?.id,
-          notes: item.notes || undefined,
-        })),
+        items: items.map((item) => {
+          const modifier = item.cutOption?.priceModifier ?? 0;
+          const unitPrice = Number(item.product.basePrice) + Number(modifier);
+          return {
+            productId: item.product.id,
+            quantity: item.quantity,
+            unit: item.product.unit,
+            unitPrice,
+            cutOptionId: item.cutOption?.id,
+            notes: item.notes || undefined,
+          };
+        }),
       });
       setSuccess(true);
       clearCart();

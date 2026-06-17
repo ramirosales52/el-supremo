@@ -10,6 +10,7 @@ interface CreateOrderPayload {
     productId: number;
     quantity: number;
     unit?: string;
+    unitPrice: number;
     cutOptionId?: number;
     notes?: string;
   }[];
@@ -95,7 +96,7 @@ export const ordersApi = {
         cutOptionId: item.cutOptionId ?? null,
         quantity: item.quantity,
         unit: item.unit ?? 'kg',
-        unitPrice: 0,
+        unitPrice: item.unitPrice,
         notes: item.notes ?? null,
       }));
       const { error: itemsError } = await supabase

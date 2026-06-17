@@ -129,13 +129,15 @@ export default function Home() {
               plugins={[
                 Autoplay({
                   delay: 4000,
+                  stopOnInteraction: false,
+                  stopOnMouseEnter: false,
                 }),
               ]}
               className="w-full px-12"
             >
               <CarouselContent>
                 {featuredProducts.map((product) => (
-                  <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4">
+                  <CarouselItem key={product.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                     <div className="p-1">
                       <ProductCard product={product} />
                     </div>

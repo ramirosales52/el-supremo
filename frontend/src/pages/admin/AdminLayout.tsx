@@ -1,56 +1,103 @@
+import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { ChevronLeftIcon } from 'lucide-react';
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Package,
+  Tags,
+  Scissors,
+  Menu,
+  Store,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import logo from '@/assets/logo-blanco.png';
 
-const tabs = [
-  { to: '/admin', label: 'Dashboard', end: true },
-  { to: '/admin/pedidos', label: 'Pedidos' },
-  { to: '/admin/productos', label: 'Productos' },
-  { to: '/admin/categorias', label: 'Categorías' },
-  { to: '/admin/cortes', label: 'Opciones de Corte' },
+const navItems = [
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/admin/pedidos', label: 'Pedidos', icon: ShoppingBag },
+  { to: '/admin/productos', label: 'Productos', icon: Package },
+  { to: '/admin/categorias', label: 'Categorías', icon: Tags },
+  { to: '/admin/cortes', label: 'Opciones de Corte', icon: Scissors },
 ];
 
-export default function AdminLayout() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b bg-card">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <NavLink to="/">
-              <Button variant="ghost" size="icon-sm">
-                <ChevronLeftIcon />
-              </Button>
-            </NavLink>
-            <span className="font-semibold">Admin Panel</span>
-          </div>
-        </div>
-        <Separator />
-        <div className="mx-auto flex max-w-7xl gap-1 px-4 sm:px-6 lg:px-8">
-          {tabs.map((tab) => (
-            <NavLink
-              key={tab.to}
-              to={tab.to}
-              end={tab.end}
-              className={({ isActive }) =>
-                cn(
-                  'inline-flex items-center border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'border-foreground text-foreground'
-                    : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
-                )
-              }
-            >
-              {tab.label}
-            </NavLink>
-          ))}
-        </div>
+    <div className="flex h-full flex-col bg-white">
+      <div className="flex h-20 items-center justify-center border-b px-5">
+        <img src={logo} alt="El Supremo" className="h-10 w-auto" />
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Outlet />
+      <nav className="flex-1 space-y-1 p-3">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+              )
+            }
+          >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="border-t p-3">
+        <NavLink
+          to="/"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+        >
+          <Store className="h-4 w-4" />
+          Volver a la tienda
+        </NavLink>
       </div>
+    </div>
+  );
+}
+
+export default function AdminLayout() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* Mobile header */}
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-3 border-b bg-white px-4 md:hidden">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger
+            render={
+              <Button variant="ghost" size="icon-sm" className="text-gray-500">
+                <Menu className="h-5 w-5" />
+              </Button>
+            }
+          />
+        </Sheet>
+        <img src={logo} alt="El Supremo" className="h-8 w-auto" />
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 border-r bg-white md:block">
+        <SidebarContent />
+      </aside>
+
+      {/* Content area */}
+      <main className="flex-1 overflow-auto pt-14 md:pt-0">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 }

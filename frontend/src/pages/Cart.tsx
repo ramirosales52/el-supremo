@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { getProductImageUrl } from '../api/storage';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, totalItems, totalPrice, clearCart } = useCart();
@@ -46,8 +47,16 @@ export default function Cart() {
                   className="border border-gray-200 bg-white p-4 sm:p-5"
                 >
                   <div className="flex gap-4">
-                    <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-3xl">🥩</span>
+                    <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {item.product.image ? (
+                        <img
+                          src={getProductImageUrl(item.product.image)}
+                          alt={item.product.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-3xl">🥩</span>
+                      )}
                     </div>
 
                     <div className="flex-1 min-w-0">

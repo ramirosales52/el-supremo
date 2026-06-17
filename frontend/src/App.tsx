@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Cart from './pages/Cart';
@@ -10,47 +10,45 @@ import Checkout from './pages/Checkout';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import OrdersAdmin from './pages/admin/OrdersAdmin';
+import OrderDetail from './pages/admin/OrderDetail';
 import ProductsAdmin from './pages/admin/ProductsAdmin';
 import CategoriesAdmin from './pages/admin/CategoriesAdmin';
 import CutOptionsAdmin from './pages/admin/CutOptionsAdmin';
 
-function ScrollToTop() {
+function PublicLayout() {
   const { pathname, search } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname, search]);
-  return null;
+  return (
+    <>
+      <Navbar />
+      <div className="flex-1 flex flex-col">
+        <Outlet />
+      </div>
+      <Footer />
+    </>
+  );
 }
 
 export default function App() {
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <Routes>
-        <Route
-          path="/*"
-          element={
-            <>
-              <ScrollToTop />
-              <Navbar />
-              <div className="flex-1 flex flex-col">
-                <Routes>
-                  <Route index element={<Home />} />
-                  <Route path="productos" element={<Products />} />
-                  <Route path="producto/:id" element={<ProductDetail />} />
-                  <Route path="carrito" element={<Cart />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="admin" element={<AdminLayout />}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="pedidos" element={<OrdersAdmin />} />
-                    <Route path="productos" element={<ProductsAdmin />} />
-                    <Route path="categorias" element={<CategoriesAdmin />} />
-                    <Route path="cortes" element={<CutOptionsAdmin />} />
-                  </Route>
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </div>
-              <Footer />
-            </>
-          }
-        />
+        <Route element={<PublicLayout />}>
+          <Route index element={<Home />} />
+          <Route path="productos" element={<Products />} />
+          <Route path="producto/:id" element={<ProductDetail />} />
+          <Route path="carrito" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+        <Route path="admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="pedidos" element={<OrdersAdmin />} />
+          <Route path="pedidos/:id" element={<OrderDetail />} />
+          <Route path="productos" element={<ProductsAdmin />} />
+          <Route path="categorias" element={<CategoriesAdmin />} />
+          <Route path="cortes" element={<CutOptionsAdmin />} />
+        </Route>
       </Routes>
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { productsApi } from '../../api/products';
 import { categoriesApi } from '../../api/categories';
 import { cutOptionsApi } from '../../api/cutOptions';
+import { uploadProductImage, getProductImageUrl } from '../../api/storage';
 import type { Product, Category, CutOption } from '../../types';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Upload, X } from 'lucide-react';
 
 export default function ProductsAdmin() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -27,6 +29,8 @@ export default function ProductsAdmin() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -50,22 +54,51 @@ export default function ProductsAdmin() {
       categoryId: categories[0]?.id,
       cutOptions: [],
     });
+    setImageFile(null);
+    setImagePreview(null);
     setDialogOpen(true);
   };
 
   const openEdit = (p: Product) => {
     setEditing(p);
+    setImageFile(null);
+    setImagePreview(p.image ? getProductImageUrl(p.image) : null);
     setDialogOpen(true);
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (editing) {
+      setEditing({ ...editing, image: undefined });
+    }
   };
 
   const handleSave = async () => {
     if (!editing?.name || !editing?.basePrice || !editing?.categoryId) return;
     setSaving(true);
     try {
+      let imagePath = editing.image;
+
+      if (imageFile) {
+        const tempId = editing.id ?? Date.now();
+        imagePath = await uploadProductImage(imageFile, tempId);
+      }
+
+      const { category, cutOptions, ...rest } = editing;
       const data = {
-        ...editing,
-        cutOptionIds: editing.cutOptions?.map((c: any) => c.id ?? c) ?? [],
+        ...rest,
+        image: imagePath || undefined,
+        cutOptionIds: cutOptions?.map((c: any) => c.id ?? c) ?? [],
       };
+
       if (editing.id) {
         const updated = await productsApi.update(editing.id, data);
         setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -75,6 +108,8 @@ export default function ProductsAdmin() {
       }
       setDialogOpen(false);
       setEditing(null);
+      setImageFile(null);
+      setImagePreview(null);
     } finally {
       setSaving(false);
     }
@@ -112,13 +147,13 @@ export default function ProductsAdmin() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Productos</h2>
+        <h2 className="text-xl font-bold text-gray-900">Productos</h2>
         <Button size="sm" onClick={openNew}>
           + Nuevo producto
         </Button>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageFile(null); setImagePreview(null); } }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing?.id ? 'Editar' : 'Nuevo'} producto</DialogTitle>
@@ -144,6 +179,39 @@ export default function ProductsAdmin() {
                 rows={2}
               />
             </div>
+
+            {/* Image upload */}
+            <div className="grid gap-2">
+              <Label>Imagen</Label>
+              {imagePreview ? (
+                <div className="relative inline-block">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="h-32 w-32 rounded-lg border object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-input bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground/70">
+                  <Upload className="h-4 w-4" />
+                  <span>Seleccionar imagen</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
                 <Label htmlFor="price">Precio base</Label>
@@ -226,6 +294,7 @@ export default function ProductsAdmin() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-14">Img</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Categoría</TableHead>
               <TableHead className="text-right">Precio</TableHead>
@@ -236,6 +305,21 @@ export default function ProductsAdmin() {
           <TableBody>
             {products.map((p) => (
               <TableRow key={p.id}>
+                <TableCell>
+                  <div className="h-10 w-10 overflow-hidden rounded-md bg-muted">
+                    {p.image ? (
+                      <img
+                        src={getProductImageUrl(p.image)}
+                        alt={p.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-sm">
+                        🥩
+                      </div>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="font-medium">{p.name}</TableCell>
                 <TableCell className="text-muted-foreground">{p.category.name}</TableCell>
                 <TableCell className="text-right font-medium">

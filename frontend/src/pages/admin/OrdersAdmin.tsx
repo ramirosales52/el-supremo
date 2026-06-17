@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { useOrdersPolling } from '../../hooks/useOrdersPolling';
-import type { Order, OrderStatus } from '../../types';
+import type { Order, OrderStatus, OrderItem } from '../../types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+
+function effectivePrice(item: OrderItem) {
+  return item.unitPrice || Number(item.product.basePrice) + Number(item.cutOption?.priceModifier ?? 0);
+}
 
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendiente',
@@ -34,8 +38,8 @@ const statusOrder: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered'
 export default function OrdersAdmin() {
   const { orders, filterByStatus, refresh } = useOrdersPolling();
   const [filter, setFilter] = useState<OrderStatus | undefined>(undefined);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updating, setUpdating] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   const filteredOrders = filterByStatus(filter);
 
@@ -54,7 +58,7 @@ export default function OrdersAdmin() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Pedidos</h2>
+        <h2 className="text-xl font-bold text-gray-900">Pedidos</h2>
         <div className="flex gap-2">
           {statusOrder.map((status) => (
             <Button
@@ -69,7 +73,7 @@ export default function OrdersAdmin() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {filteredOrders.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center py-12 text-muted-foreground">
@@ -99,13 +103,9 @@ export default function OrdersAdmin() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        setSelectedOrder(
-                          selectedOrder?.id === order.id ? null : order
-                        )
-                      }
+                      onClick={() => navigate(`/admin/pedidos/${order.id}`)}
                     >
-                      {selectedOrder?.id === order.id ? 'Ocultar' : 'Detalle'}
+                      Detalle
                     </Button>
                     {order.status !== 'delivered' && (
                       <Button
@@ -126,65 +126,13 @@ export default function OrdersAdmin() {
                   👤 {order.customerName} · 📞 {order.customerPhone}
                   {order.customerAddress && <> · 📍 {order.customerAddress}</>}
                 </p>
+                <p className="text-xs text-muted-foreground/70">
+                  {order.items.length} producto{order.items.length !== 1 ? 's' : ''} · $
+                  {order.items
+                    .reduce((sum, i) => sum + effectivePrice(i) * Number(i.quantity), 0)
+                    .toFixed(2)}
+                </p>
               </CardContent>
-
-              {selectedOrder?.id === order.id && (
-                <>
-                  <Separator />
-                  <CardContent>
-                    <p className="mb-2 text-sm font-medium">Productos:</p>
-                    <div className="space-y-2">
-                      {order.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex justify-between rounded-lg bg-muted/50 p-2 text-sm"
-                        >
-                          <div>
-                            <span className="font-medium">{item.product.name}</span>
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {item.quantity} {item.unit}
-                            </span>
-                            {item.cutOption && (
-                              <span className="ml-2 text-xs text-primary">
-                                · {item.cutOption.name}
-                              </span>
-                            )}
-                            {item.notes && (
-                              <p className="mt-0.5 text-xs text-muted-foreground">
-                                Nota: {item.notes}
-                              </p>
-                            )}
-                          </div>
-                          <span className="font-medium">
-                            $
-                            {(
-                              item.unitPrice * Number(item.quantity)
-                            ).toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-3 flex justify-between border-t pt-3 font-semibold">
-                      <span>Total</span>
-                      <span>
-                        $
-                        {order.items
-                          .reduce(
-                            (sum, i) => sum + i.unitPrice * Number(i.quantity),
-                            0
-                          )
-                          .toFixed(2)}
-                      </span>
-                    </div>
-                    {order.notes && (
-                      <div className="mt-3 text-sm text-muted-foreground">
-                        <span className="font-medium">Notas del pedido:</span>{' '}
-                        {order.notes}
-                      </div>
-                    )}
-                  </CardContent>
-                </>
-              )}
             </Card>
           ))
         )}

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
+import { getProductImageUrl } from '../api/storage';
 
 interface ProductCardProps {
   product: Product;
@@ -11,7 +12,15 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="border border-gray-200 bg-white flex flex-col group">
       <div className="h-44 bg-gray-50 flex items-center justify-center relative overflow-hidden border-b border-gray-200">
-        <span className="text-6xl opacity-20 relative group-hover:scale-110 transition-transform duration-300">🥩</span>
+        {product.image ? (
+          <img
+            src={getProductImageUrl(product.image)}
+            alt={product.name}
+            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
+          />
+        ) : (
+          <span className="text-6xl opacity-20 relative group-hover:scale-110 transition-transform duration-300">🥩</span>
+        )}
       </div>
 
       <div className="p-4 flex-1 flex flex-col gap-2">
