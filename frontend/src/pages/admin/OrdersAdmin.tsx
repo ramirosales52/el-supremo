@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { useOrdersPolling } from '../../hooks/useOrdersPolling';
-import type { Order, OrderStatus, OrderItem } from '../../types';
+import type { Order, OrderStatus } from '../../types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
-function effectivePrice(item: OrderItem) {
-  return item.unitPrice || Number(item.product.basePrice) + Number(item.cutOption?.priceModifier ?? 0);
-}
+const paymentLabels: Record<string, string> = {
+  cash: 'Efectivo',
+  transfer: 'Transferencia',
+  card: 'Tarjeta',
+};
 
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendiente',
@@ -127,11 +129,29 @@ export default function OrdersAdmin() {
                   {order.customerAddress && <> · 📍 {order.customerAddress}</>}
                 </p>
                 <p className="text-xs text-muted-foreground/70">
-                  {order.items.length} producto{order.items.length !== 1 ? 's' : ''} · $
-                  {order.items
-                    .reduce((sum, i) => sum + effectivePrice(i) * Number(i.quantity), 0)
-                    .toFixed(2)}
+                  {order.items.length} producto{order.items.length !== 1 ? 's' : ''} · Total: ${order.total.toFixed(2)}
                 </p>
+                {order.paymentMethod && (
+                  <div className="flex gap-2 mt-1">
+                    <Badge variant="outline" className="text-[10px]">
+                      {paymentLabels[order.paymentMethod]}
+                    </Badge>
+                    {order.discount > 0 && (
+                      <Badge variant="secondary" className="text-[10px]">
+                        -${order.discount.toFixed(2)} desc.
+                      </Badge>
+                    )}
+                    {order.shippingCost > 0 ? (
+                      <Badge variant="ghost" className="text-[10px]">
+                        Envío ${order.shippingCost.toFixed(2)}
+                      </Badge>
+                    ) : (
+                      <Badge variant="ghost" className="text-[10px] text-green-600">
+                        Envío gratis
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))

@@ -7,7 +7,7 @@ import type { Category } from '../types';
 import logo from '../assets/logo-blanco.png';
 
 export default function Navbar() {
-  const { totalItems, totalPrice } = useCart();
+  const { totalItems, subtotal } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -130,7 +130,7 @@ export default function Navbar() {
                 )}
               </div>
               <span className="text-base font-bold text-primary-400 tabular-nums">
-                ${totalPrice.toFixed(2)}
+                ${subtotal.toFixed(2)}
               </span>
             </Link>
           </div>

@@ -1,19 +1,42 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { ordersApi } from '../api/orders';
+import type { PaymentMethod } from '../types';
+import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD, TRANSFER_DISCOUNT_RATE } from '../lib/utils';
+
+const paymentMethods: { value: PaymentMethod; label: string; description: string; comingSoon?: boolean }[] = [
+  { value: 'cash', label: 'Efectivo', description: 'Pagás en efectivo al recibir el pedido' },
+  { value: 'transfer', label: 'Transferencia bancaria', description: '5% de descuento por transferencia' },
+  { value: 'card', label: 'Tarjeta de crédito/débito', description: 'Mercado Pago (próximamente)', comingSoon: true },
+];
 
 export default function Checkout() {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [notes, setNotes] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  const discount = useMemo(() => {
+    if (paymentMethod === 'transfer') return subtotal * TRANSFER_DISCOUNT_RATE;
+    return 0;
+  }, [paymentMethod, subtotal]);
+
+  const discountedSubtotal = subtotal - discount;
+
+  const shippingCost = useMemo(() => {
+    if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
+    return SHIPPING_COST;
+  }, [subtotal]);
+
+  const total = discountedSubtotal + shippingCost;
 
   if (items.length === 0 && !success) {
     return (
@@ -60,6 +83,11 @@ export default function Checkout() {
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
         customerAddress: customerAddress.trim() || undefined,
+        paymentMethod,
+        subtotal,
+        discount,
+        shippingCost,
+        total,
         notes: notes.trim() || undefined,
         items: items.map((item) => {
           const modifier = item.cutOption?.priceModifier ?? 0;
@@ -129,6 +157,34 @@ export default function Checkout() {
               </div>
             </div>
 
+            <div className="border border-gray-200 bg-white p-5 space-y-3">
+              <h3 className="font-semibold text-gray-900">Medio de pago</h3>
+              {paymentMethods.map((pm) => (
+                <label
+                  key={pm.value}
+                  className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${
+                    paymentMethod === pm.value
+                      ? 'border-red-600 bg-red-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  } ${pm.comingSoon ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={pm.value}
+                    checked={paymentMethod === pm.value}
+                    onChange={() => !pm.comingSoon && setPaymentMethod(pm.value)}
+                    disabled={pm.comingSoon}
+                    className="accent-red-600"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{pm.label}</p>
+                    <p className="text-xs text-gray-500">{pm.description}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+
             <div className="border border-gray-200 bg-white p-5">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Notas para el pedido <span className="text-gray-400">(opcional)</span>
@@ -151,7 +207,7 @@ export default function Checkout() {
               disabled={submitting}
               className="w-full py-3 font-semibold text-base bg-red-600 hover:bg-red-700 text-white tracking-wider disabled:opacity-50"
             >
-              {submitting ? 'Enviando pedido...' : `Confirmar pedido — $${totalPrice.toFixed(2)}`}
+              {submitting ? 'Enviando pedido...' : `Confirmar pedido — $${total.toFixed(2)}`}
             </button>
           </form>
 
@@ -178,9 +234,28 @@ export default function Checkout() {
                   );
                 })}
               </div>
-              <div className="border-t border-gray-200 mt-4 pt-4 flex justify-between font-semibold text-gray-900">
+              <div className="border-t border-gray-200 mt-4 pt-4 space-y-2 text-sm">
+                <div className="flex justify-between text-gray-500">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Descuento transferencia (5%)</span>
+                    <span>-${discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-gray-500">
+                  <span>Envío</span>
+                  <span>{shippingCost === 0 ? <span className="text-green-600 font-medium">Gratis</span> : `$${shippingCost.toFixed(2)}`}</span>
+                </div>
+                {subtotal >= FREE_SHIPPING_THRESHOLD && (
+                  <p className="text-xs text-green-600">Envío gratis por pedido mayor a ${FREE_SHIPPING_THRESHOLD.toFixed(2)}</p>
+                )}
+              </div>
+              <div className="border-t border-gray-200 mt-3 pt-3 flex justify-between font-bold text-gray-900">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>${total.toFixed(2)}</span>
               </div>
             </div>
           </div>

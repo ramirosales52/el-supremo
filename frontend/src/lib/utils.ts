@@ -6,6 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const SUPREMO_LISTO_PRICE = 500
+export const SHIPPING_COST = 3500
+export const FREE_SHIPPING_THRESHOLD = 50000
+export const TRANSFER_DISCOUNT_RATE = 0.05
 export const QUANTITIES_KG = [0.5, 1, 1.5, 2, 2.5, 3]
 
 export function formatARS(amount: number): string {

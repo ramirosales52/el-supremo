@@ -1,6 +1,5 @@
 import { createContext, useContext, useReducer, type ReactNode } from 'react';
 import type { CartItem, Product, CutOption } from '../types';
-import { SUPREMO_LISTO_PRICE } from '../lib/utils';
 
 interface CartState {
   items: CartItem[];
@@ -66,7 +65,7 @@ interface CartContextType {
   updateQuantity: (productId: number, cutOptionId: number | null, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
-  totalPrice: number;
+  subtotal: number;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -90,14 +89,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalItems = state.items.length;
 
-  const totalPrice = state.items.reduce((sum, item) => {
+  const subtotal = state.items.reduce((sum, item) => {
     const modifier = item.cutOption?.priceModifier ?? 0;
-    return sum + (Number(item.product.basePrice) + Number(modifier)) * item.quantity + (item.supremoListo ? SUPREMO_LISTO_PRICE : 0);
+    return sum + (Number(item.product.basePrice) + Number(modifier)) * item.quantity;
   }, 0);
 
   return (
     <CartContext.Provider
-      value={{ items: state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{ items: state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal }}
     >
       {children}
     </CartContext.Provider>

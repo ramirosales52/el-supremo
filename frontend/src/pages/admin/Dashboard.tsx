@@ -116,9 +116,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <span className="text-3xl font-bold">
-              ${orders.reduce((sum, o) =>
-                sum + o.items.reduce((s, i) => s + (i.unitPrice || Number(i.product.basePrice) + Number(i.cutOption?.priceModifier ?? 0)) * Number(i.quantity), 0)
-              , 0).toFixed(2)}
+              ${orders.reduce((sum, o) => sum + Number(o.total || 0), 0).toFixed(2)}
             </span>
           </CardContent>
         </Card>

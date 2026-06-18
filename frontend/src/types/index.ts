@@ -46,6 +46,8 @@ export interface OrderItem {
 }
 
 export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'delivered';
+export type PaymentMethod = 'cash' | 'transfer' | 'card';
+export type PaymentStatus = 'pending' | 'paid' | 'cancelled';
 
 export interface Order {
   id: number;
@@ -53,6 +55,12 @@ export interface Order {
   customerPhone: string;
   customerAddress?: string;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  subtotal: number;
+  discount: number;
+  shippingCost: number;
+  total: number;
   notes?: string;
   items: OrderItem[];
   createdAt: string;

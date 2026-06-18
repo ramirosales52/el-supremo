@@ -51,6 +51,12 @@ CREATE TABLE orders (
   "customerPhone" VARCHAR(50) NOT NULL,
   "customerAddress" VARCHAR(300),
   status VARCHAR(20) DEFAULT 'pending',
+  "paymentMethod" VARCHAR(20) DEFAULT 'cash',
+  "paymentStatus" VARCHAR(20) DEFAULT 'pending',
+  subtotal DECIMAL(10,2) DEFAULT 0,
+  discount DECIMAL(10,2) DEFAULT 0,
+  "shippingCost" DECIMAL(10,2) DEFAULT 0,
+  total DECIMAL(10,2) DEFAULT 0,
   notes TEXT,
   createdAt TIMESTAMP DEFAULT NOW(),
   updatedAt TIMESTAMP DEFAULT NOW()

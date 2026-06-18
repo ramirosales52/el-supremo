@@ -14,6 +14,12 @@ function effectivePrice(item: Order['items'][0]) {
   return item.unitPrice || Number(item.product.basePrice) + Number(item.cutOption?.priceModifier ?? 0);
 }
 
+const paymentLabels: Record<string, string> = {
+  cash: 'Efectivo',
+  transfer: 'Transferencia',
+  card: 'Tarjeta',
+};
+
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendiente',
   preparing: 'En preparación',
@@ -143,9 +149,26 @@ export default function OrderDetail() {
               </Badge>
             </div>
             <Separator />
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Pago</span>
+              <span className="font-medium">{paymentLabels[order.paymentMethod] ?? order.paymentMethod}</span>
+            </div>
+            {order.discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Descuento</span>
+                <span className="font-medium">-${Number(order.discount).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Envío</span>
+              <span className={order.shippingCost > 0 ? 'font-medium' : 'font-medium text-green-600'}>
+                {order.shippingCost > 0 ? `$${Number(order.shippingCost).toFixed(2)}` : 'Gratis'}
+              </span>
+            </div>
+            <Separator />
             <div className="flex justify-between font-semibold">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>${Number(order.total).toFixed(2)}</span>
             </div>
           </CardContent>
         </Card>
@@ -212,9 +235,22 @@ export default function OrderDetail() {
 
           <Separator className="my-4" />
 
+          {order.discount > 0 && (
+            <div className="flex justify-between text-sm text-green-600 mb-2">
+              <span>Descuento ({order.paymentMethod === 'transfer' ? '5% transferencia' : ''})</span>
+              <span>-${Number(order.discount).toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm text-gray-500 mb-1">
+            <span>Envío</span>
+            <span>{order.shippingCost > 0 ? `$${Number(order.shippingCost).toFixed(2)}` : <span className="text-green-600">Gratis</span>}</span>
+          </div>
+
+          <Separator className="my-3" />
+
           <div className="flex justify-between text-lg font-bold text-gray-900">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>${Number(order.total).toFixed(2)}</span>
           </div>
         </CardContent>
       </Card>

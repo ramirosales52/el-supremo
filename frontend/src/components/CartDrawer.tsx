@@ -8,7 +8,7 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, removeItem, updateQuantity, totalItems, totalPrice } = useCart();
+  const { items, removeItem, updateQuantity, totalItems, subtotal } = useCart();
   const navigate = useNavigate();
 
   const handleCheckout = () => {
@@ -123,7 +123,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             <div className="border-t border-gray-200 px-5 py-4 space-y-3">
               <div className="flex justify-between text-base font-semibold text-gray-900">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>${subtotal.toFixed(2)}</span>
               </div>
               <button onClick={handleCheckout} className="w-full py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider block text-center">
                 Confirmar pedido

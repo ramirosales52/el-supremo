@@ -3,7 +3,7 @@ import { useCart } from '../context/CartContext';
 import { getProductImageUrl } from '../api/storage';
 
 export default function Cart() {
-  const { items, removeItem, updateQuantity, totalItems, totalPrice, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart } = useCart();
 
   if (items.length === 0) {
     return (
@@ -73,7 +73,7 @@ export default function Cart() {
                         </div>
                         <button
                           onClick={() => removeItem(item.product.id, item.cutOption?.id ?? null)}
-                          className="text-gray-400 hover:text-red-600 transition-colors p-1 flex-shrink-0"
+                          className="text-gray-400 hover:text-red-600 transition-colors p-1 flex-shrink-0 cursor-pointer"
                           title="Eliminar"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,11 +126,6 @@ export default function Cart() {
                             )}
                           </span>
                         )}
-                        {item.supremoListo && (
-                          <span className="inline-flex items-center gap-1 text-xs bg-gray-900 text-white px-2.5 py-1 font-semibold">
-                            SUPREMO LISTO
-                          </span>
-                        )}
                       </div>
 
                       {item.notes && (
@@ -171,12 +166,11 @@ export default function Cart() {
               <div className="border-t border-gray-200 mt-4 pt-4 space-y-2">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Subtotal</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-bold text-gray-900">
-                  <span>Total</span>
-                  <span>${totalPrice.toFixed(2)}</span>
-                </div>
+                <p className="text-xs text-gray-400">
+                  El costo de envío y descuentos se calculan al confirmar el pedido.
+                </p>
               </div>
 
               <Link
