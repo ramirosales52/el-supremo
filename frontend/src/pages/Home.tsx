@@ -144,8 +144,8 @@ export default function Home() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-<CarouselPrevious className="text-zinc-700 border-zinc-300 cursor-pointer" />
-<CarouselNext className="text-zinc-700 border-zinc-300 cursor-pointer" />
+<CarouselPrevious className="hidden sm:inline-flex text-zinc-700 border-zinc-300 cursor-pointer" />
+<CarouselNext className="hidden sm:inline-flex text-zinc-700 border-zinc-300 cursor-pointer" />
             </Carousel>
           )}
         </div>
