@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, type ReactNode } from 'react';
 import type { CartItem, Product, CutOption } from '../types';
+import { getEffectivePrice } from '../lib/utils';
 
 interface CartState {
   items: CartItem[];
@@ -90,8 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalItems = state.items.length;
 
   const subtotal = state.items.reduce((sum, item) => {
-    const modifier = item.cutOption?.priceModifier ?? 0;
-    return sum + (Number(item.product.basePrice) + Number(modifier)) * item.quantity;
+    return sum + getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0) * item.quantity;
   }, 0);
 
   return (

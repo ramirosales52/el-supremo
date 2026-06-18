@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getProductImageUrl } from '../api/storage';
+import { getEffectivePrice } from '../lib/utils';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -51,8 +52,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             ) : (
               <div className="space-y-4">
                 {items.map((item) => {
-                  const modifier = item.cutOption?.priceModifier ?? 0;
-                  const unitPrice = Number(item.product.basePrice) + Number(modifier);
+                  const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
                   return (
                     <div
                       key={`${item.product.id}-${item.cutOption?.id}`}

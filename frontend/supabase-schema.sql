@@ -32,6 +32,8 @@ CREATE TABLE products (
   unit VARCHAR(10) DEFAULT 'kg',
   image VARCHAR DEFAULT '',
   "isAvailable" BOOLEAN DEFAULT TRUE,
+  "isOnSale" BOOLEAN DEFAULT FALSE,
+  "discountPercentage" INTEGER DEFAULT NULL,
   "categoryId" INTEGER REFERENCES categories(id),
   createdAt TIMESTAMP DEFAULT NOW(),
   updatedAt TIMESTAMP DEFAULT NOW()

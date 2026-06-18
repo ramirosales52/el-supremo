@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { ordersApi } from '../api/orders';
 import type { PaymentMethod } from '../types';
-import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD, TRANSFER_DISCOUNT_RATE } from '../lib/utils';
+import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD, TRANSFER_DISCOUNT_RATE, getEffectivePrice } from '../lib/utils';
 
 const paymentMethods: { value: PaymentMethod; label: string; description: string; comingSoon?: boolean }[] = [
   { value: 'cash', label: 'Efectivo', description: 'Pagás en efectivo al recibir el pedido' },
@@ -60,7 +60,7 @@ export default function Checkout() {
           <p className="text-gray-500 mb-6">
             Recibimos tu pedido. Te vamos a contactar para confirmar.
           </p>
-          <button onClick={() => navigate('/')} className="px-6 py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider">
+          <button onClick={() => navigate('/')} className="cursor-pointer px-6 py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider">
             Seguir comprando
           </button>
         </div>
@@ -90,8 +90,7 @@ export default function Checkout() {
         total,
         notes: notes.trim() || undefined,
         items: items.map((item) => {
-          const modifier = item.cutOption?.priceModifier ?? 0;
-          const unitPrice = Number(item.product.basePrice) + Number(modifier);
+          const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
           return {
             productId: item.product.id,
             quantity: item.quantity,
@@ -205,7 +204,7 @@ export default function Checkout() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 font-semibold text-base bg-red-600 hover:bg-red-700 text-white tracking-wider disabled:opacity-50"
+              className="cursor-pointer w-full py-3 font-semibold text-base bg-red-600 hover:bg-red-700 text-white tracking-wider disabled:opacity-50"
             >
               {submitting ? 'Enviando pedido...' : `Confirmar pedido — $${total.toFixed(2)}`}
             </button>
@@ -216,8 +215,7 @@ export default function Checkout() {
               <h3 className="font-semibold text-gray-900 mb-4">Resumen del pedido</h3>
               <div className="space-y-3">
                 {items.map((item) => {
-                  const modifier = item.cutOption?.priceModifier ?? 0;
-                  const unitPrice = Number(item.product.basePrice) + Number(modifier);
+                  const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
                   return (
                     <div key={`${item.product.id}-${item.cutOption?.id}`} className="flex justify-between text-sm">
                       <div className="flex-1 min-w-0">

@@ -29,6 +29,12 @@ export class Product {
   @Column({ default: true })
   isAvailable: boolean;
 
+  @Column({ default: false })
+  isOnSale: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  discountPercentage: number;
+
   @ManyToOne(() => Category, (category) => category.products, { eager: true })
   @JoinColumn({ name: 'categoryId' })
   category: Category;

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productsApi } from '../api/products';
 import { useCart } from '../context/CartContext';
-import { formatARS, QUANTITIES_KG } from '../lib/utils';
+import { formatARS, QUANTITIES_KG, getEffectivePrice, getSalePrice } from '../lib/utils';
 import { getProductImageUrl } from '../api/storage';
 import { Check, ChevronLeft } from 'lucide-react';
 import type { Product, CutOption } from '../types';
@@ -34,7 +34,7 @@ export default function ProductDetail() {
   const isUnit = product?.unit === 'unidad';
 
   const modifier = selectedCut?.priceModifier ?? 0;
-  const unitPrice = product ? Number(product.basePrice) + Number(modifier) : 0;
+  const unitPrice = product ? getEffectivePrice(product, modifier) : 0;
   const finalQty = customQty ? qty : qty;
 
   const lineTotal = useMemo(
@@ -96,8 +96,23 @@ export default function ProductDetail() {
           <span className="stamp text-primary">{isUnit ? 'Por unidad' : 'Por kilo'}</span>
           <h1 className="mt-3 font-display text-5xl md:text-6xl">{product.name.toUpperCase()}</h1>
           <p className="mt-3 text-lg text-muted-foreground">{product.description}</p>
-          <div className="mt-6 font-display text-5xl text-primary">
-            {formatARS(unitPrice)} <span className="text-xl text-muted-foreground">/ {isUnit ? 'unidad' : 'kg'}</span>
+          <div className="mt-6">
+            {product.isOnSale && product.discountPercentage && (
+              <span className="inline-block rounded bg-red-600 px-2 py-1 text-xs font-bold text-white mb-2">
+                -{product.discountPercentage}%
+              </span>
+            )}
+            <div className="flex items-baseline gap-2">
+              {product.isOnSale && product.discountPercentage && (
+                <span className="font-display text-2xl text-muted-foreground line-through">
+                  {formatARS(Number(product.basePrice) + Number(modifier))}
+                </span>
+              )}
+              <span className="font-display text-5xl text-primary">
+                {formatARS(unitPrice)}
+              </span>
+              <span className="text-xl text-muted-foreground">/ {isUnit ? 'unidad' : 'kg'}</span>
+            </div>
           </div>
         </div>
 

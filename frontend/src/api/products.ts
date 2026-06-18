@@ -13,6 +13,8 @@ function mapProduct(raw: any): Product {
     unit: raw.unit,
     image: raw.image || undefined,
     isAvailable: raw.isAvailable,
+    isOnSale: raw.isOnSale ?? false,
+    discountPercentage: raw.discountPercentage ?? null,
     category: raw.category ?? raw.categoryId,
     categoryId: raw.categoryId,
     cutOptions,

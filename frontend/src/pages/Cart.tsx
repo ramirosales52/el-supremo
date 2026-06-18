@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getProductImageUrl } from '../api/storage';
+import { getEffectivePrice } from '../lib/utils';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart } = useCart();
@@ -38,8 +39,7 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-3">
             {items.map((item) => {
-              const modifier = item.cutOption?.priceModifier ?? 0;
-              const unitPrice = Number(item.product.basePrice) + Number(modifier);
+              const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
 
               return (
                 <div
@@ -146,8 +146,7 @@ export default function Cart() {
 
               <div className="space-y-3 text-sm">
                 {items.map((item) => {
-                  const modifier = item.cutOption?.priceModifier ?? 0;
-                  const unitPrice = Number(item.product.basePrice) + Number(modifier);
+                  const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
                   return (
                     <div key={`${item.product.id}-${item.cutOption?.id}`} className="flex justify-between">
                       <span className="text-gray-500 truncate mr-2">

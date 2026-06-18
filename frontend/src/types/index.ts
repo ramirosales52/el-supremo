@@ -20,6 +20,8 @@ export interface Product {
   unit: string;
   image?: string;
   isAvailable: boolean;
+  isOnSale: boolean;
+  discountPercentage: number | null;
   category: Category;
   categoryId: number;
   cutOptions: CutOption[];

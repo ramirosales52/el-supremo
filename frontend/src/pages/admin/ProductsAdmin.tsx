@@ -261,6 +261,53 @@ export default function ProductsAdmin() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center gap-3 py-2">
+              <Label className="mb-0">Oferta</Label>
+              <button
+                type="button"
+                onClick={() =>
+                  setEditing({
+                    ...editing!,
+                    isOnSale: !editing?.isOnSale,
+                    discountPercentage: editing?.isOnSale ? editing?.discountPercentage : undefined,
+                  })
+                }
+                className={`relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors ${
+                  editing?.isOnSale ? 'bg-red-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    editing?.isOnSale ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {editing?.isOnSale && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-2">
+                  <Label htmlFor="discount">Descuento (%)</Label>
+                  <Input
+                    id="discount"
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={editing?.discountPercentage ?? ''}
+                    onChange={(e) => setEditing({ ...editing!, discountPercentage: +e.target.value })}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Precio final</Label>
+                  <div className="flex h-10 items-center rounded-md border border-input bg-muted px-3 text-sm font-semibold text-green-700">
+                    {editing?.basePrice && editing?.discountPercentage
+                      ? `$${(Number(editing.basePrice) * (1 - (editing.discountPercentage || 0) / 100)).toFixed(2)}`
+                      : '—'}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid gap-2">
               <Label>Opciones de corte</Label>
               <div className="flex flex-wrap gap-2">
@@ -323,7 +370,16 @@ export default function ProductsAdmin() {
                 <TableCell className="font-medium">{p.name}</TableCell>
                 <TableCell className="text-muted-foreground">{p.category.name}</TableCell>
                 <TableCell className="text-right font-medium">
-                  ${Number(p.basePrice).toFixed(2)}
+                  <div className="flex items-center justify-end gap-2">
+                    <span className={p.isOnSale ? 'text-gray-400 line-through' : ''}>
+                      ${Number(p.basePrice).toFixed(2)}
+                    </span>
+                    {p.isOnSale && p.discountPercentage && (
+                      <span className="rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
+                        -{p.discountPercentage}%
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">

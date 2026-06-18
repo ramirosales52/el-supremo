@@ -27,6 +27,16 @@ export class CreateProductDto {
   @Type(() => Boolean)
   isAvailable?: boolean;
 
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
+  isOnSale?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  discountPercentage?: number;
+
   @IsNumber()
   @Type(() => Number)
   categoryId: number;
