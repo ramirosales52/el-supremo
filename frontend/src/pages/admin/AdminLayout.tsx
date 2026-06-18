@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -9,6 +10,7 @@ import {
   Scissors,
   Menu,
   Store,
+  LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +29,8 @@ const navItems = [
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+  const { logout } = useAuth();
+
   return (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-20 items-center justify-center border-b px-5">
@@ -55,7 +59,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="border-t p-3">
+      <div className="border-t p-3 space-y-1">
         <NavLink
           to="/"
           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
@@ -63,6 +67,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Store className="h-4 w-4" />
           Volver a la tienda
         </NavLink>
+        <button
+          onClick={() => { logout(); onNavigate?.(); }}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 cursor-pointer"
+        >
+          <LogOut className="h-4 w-4" />
+          Cerrar sesión
+        </button>
       </div>
     </div>
   );

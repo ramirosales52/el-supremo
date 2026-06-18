@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Cart from './pages/Cart';
@@ -8,6 +9,7 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import AdminLayout from './pages/admin/AdminLayout';
+import AdminLogin from './pages/admin/AdminLogin';
 import Dashboard from './pages/admin/Dashboard';
 import OrdersAdmin from './pages/admin/OrdersAdmin';
 import OrderDetail from './pages/admin/OrderDetail';
@@ -29,6 +31,12 @@ function PublicLayout() {
   );
 }
 
+function ProtectedAdmin({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <div className="min-h-screen bg-black flex flex-col">
@@ -41,7 +49,15 @@ export default function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-        <Route path="admin" element={<AdminLayout />}>
+        <Route path="admin/login" element={<AdminLogin />} />
+        <Route
+          path="admin"
+          element={
+            <ProtectedAdmin>
+              <AdminLayout />
+            </ProtectedAdmin>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="pedidos" element={<OrdersAdmin />} />
           <Route path="pedidos/:id" element={<OrderDetail />} />
