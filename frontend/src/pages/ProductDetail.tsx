@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productsApi } from '../api/products';
 import { useCart } from '../context/CartContext';
-import { formatARS, SUPREMO_LISTO_PRICE, QUANTITIES_KG } from '../lib/utils';
+import { formatARS, QUANTITIES_KG } from '../lib/utils';
 import { getProductImageUrl } from '../api/storage';
 import { Check, ChevronLeft } from 'lucide-react';
 import type { Product, CutOption } from '../types';
@@ -17,7 +17,6 @@ export default function ProductDetail() {
   const [selectedCut, setSelectedCut] = useState<CutOption | null>(null);
   const [qty, setQty] = useState(1);
   const [customQty, setCustomQty] = useState(false);
-  const [supremo, setSupremo] = useState(true);
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -39,13 +38,13 @@ export default function ProductDetail() {
   const finalQty = customQty ? qty : qty;
 
   const lineTotal = useMemo(
-    () => finalQty * unitPrice + (supremo ? SUPREMO_LISTO_PRICE : 0),
-    [finalQty, unitPrice, supremo],
+    () => finalQty * unitPrice,
+    [finalQty, unitPrice],
   );
 
   const handleAdd = () => {
     if (!product || finalQty <= 0) return;
-    addItem(product, selectedCut, finalQty, notes.trim(), supremo);
+    addItem(product, selectedCut, finalQty, notes.trim(), true);
     navigate('/carrito');
   };
 
@@ -182,38 +181,8 @@ export default function ProductDetail() {
             </div>
           )}
         </Step>
-        <Step n={hasCuts ? 3 : 2} title="¿Lo querés Supremo LISTO?">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <button
-              onClick={() => setSupremo(true)}
-              className={`cursor-pointer border-2 p-5 text-left transition ${
-                supremo ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/40'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="bg-primary px-1.5 py-0.5 font-display text-sm tracking-widest text-primary-foreground">LISTO</span>
-                <span className="font-display text-xl text-primary">+ {formatARS(SUPREMO_LISTO_PRICE)}</span>
-              </div>
-              <ul className="mt-3 space-y-1 text-sm">
-                {['Cortado', 'Porcionado', 'Separado para freezer', 'Etiquetado', 'Listo para cocinar'].map((x) => (
-                  <li key={x} className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" />{x}</li>
-                ))}
-              </ul>
-            </button>
-            <button
-              onClick={() => setSupremo(false)}
-              className={`cursor-pointer border-2 p-5 text-left transition ${
-                !supremo ? 'border-primary bg-primary/5' : 'border-border bg-card hover:border-primary/40'
-              }`}
-            >
-              <div className="font-display text-lg">Estándar</div>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Te lo enviamos cortado según elegiste, en una sola bolsa, sin porcionar.
-              </p>
-            </button>
-          </div>
-        </Step>
-        <Step n={hasCuts ? 4 : 3} title="Aclaraciones (opcional)">
+
+        <Step n={hasCuts ? 3 : 2} title="Aclaraciones (opcional)">
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
