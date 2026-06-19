@@ -16,6 +16,7 @@ import OrderDetail from './pages/admin/OrderDetail';
 import ProductsAdmin from './pages/admin/ProductsAdmin';
 import CategoriesAdmin from './pages/admin/CategoriesAdmin';
 import CutOptionsAdmin from './pages/admin/CutOptionsAdmin';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function PublicLayout() {
   const { pathname, search } = useLocation();
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="cortes" element={<CutOptionsAdmin />} />
         </Route>
       </Routes>
+      <WhatsAppButton />
     </div>
   );
 }
