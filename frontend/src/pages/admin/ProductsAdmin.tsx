@@ -29,8 +29,8 @@ export default function ProductsAdmin() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [saving, setSaving] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<(File | null)[]>([null, null, null]);
+  const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null, null, null]);
 
   useEffect(() => {
     Promise.all([
@@ -54,30 +54,44 @@ export default function ProductsAdmin() {
       categoryId: categories[0]?.id,
       cutOptions: [],
     });
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFiles([null, null, null]);
+    setImagePreviews([null, null, null]);
     setDialogOpen(true);
   };
 
   const openEdit = (p: Product) => {
     setEditing(p);
-    setImageFile(null);
-    setImagePreview(p.image ? getProductImageUrl(p.image) : null);
+    setImageFiles([null, null, null]);
+    setImagePreviews([
+      p.images?.[0] ? getProductImageUrl(p.images[0]) : null,
+      p.images?.[1] ? getProductImageUrl(p.images[1]) : null,
+      p.images?.[2] ? getProductImageUrl(p.images[2]) : null,
+    ]);
     setDialogOpen(true);
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const newFiles = [...imageFiles];
+    const newPreviews = [...imagePreviews];
+    newFiles[index] = file;
+    newPreviews[index] = URL.createObjectURL(file);
+    setImageFiles(newFiles);
+    setImagePreviews(newPreviews);
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const handleRemoveImage = (index: number) => {
+    const newFiles = [...imageFiles];
+    const newPreviews = [...imagePreviews];
+    newFiles[index] = null;
+    newPreviews[index] = null;
+    setImageFiles(newFiles);
+    setImagePreviews(newPreviews);
     if (editing) {
-      setEditing({ ...editing, image: undefined });
+      const currentImages = editing.images ?? [];
+      const updatedImages = currentImages.filter((_, i) => i !== index);
+      setEditing({ ...editing, images: updatedImages.length ? updatedImages : undefined });
     }
   };
 
@@ -85,17 +99,22 @@ export default function ProductsAdmin() {
     if (!editing?.name || !editing?.basePrice || !editing?.categoryId) return;
     setSaving(true);
     try {
-      let imagePath = editing.image;
+      let images = editing.images ?? [];
 
-      if (imageFile) {
-        const tempId = editing.id ?? Date.now();
-        imagePath = await uploadProductImage(imageFile, tempId);
+      for (let i = 0; i < 3; i++) {
+        if (imageFiles[i]) {
+          const tempId = editing.id ?? Date.now();
+          const path = await uploadProductImage(imageFiles[i]!, tempId, i);
+          const newImages = [...images];
+          newImages[i] = path;
+          images = newImages;
+        }
       }
 
       const { category, cutOptions, ...rest } = editing;
       const data = {
         ...rest,
-        image: imagePath || undefined,
+        images: images.filter(Boolean),
         cutOptionIds: cutOptions?.map((c: any) => c.id ?? c) ?? [],
       };
 
@@ -108,8 +127,8 @@ export default function ProductsAdmin() {
       }
       setDialogOpen(false);
       setEditing(null);
-      setImageFile(null);
-      setImagePreview(null);
+    setImageFiles([null, null, null]);
+    setImagePreviews([null, null, null]);
     } finally {
       setSaving(false);
     }
@@ -153,15 +172,15 @@ export default function ProductsAdmin() {
         </Button>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageFile(null); setImagePreview(null); } }}>
-        <DialogContent className="sm:max-w-lg">
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageFiles([null, null, null]); setImagePreviews([null, null, null]); } }}>
+        <DialogContent className="sm:max-w-lg flex flex-col max-h-[90dvh]">
           <DialogHeader>
             <DialogTitle>{editing?.id ? 'Editar' : 'Nuevo'} producto</DialogTitle>
             <DialogDescription>
               Completá los datos del producto y guardá los cambios.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto flex-1 min-h-0">
             <div className="grid gap-2">
               <Label htmlFor="name">Nombre</Label>
               <Input
@@ -180,36 +199,42 @@ export default function ProductsAdmin() {
               />
             </div>
 
-            {/* Image upload */}
+            {/* Images upload (up to 3) */}
             <div className="grid gap-2">
-              <Label>Imagen</Label>
-              {imagePreview ? (
-                <div className="relative inline-block">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="h-32 w-32 rounded-lg border object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-input bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground/70">
-                  <Upload className="h-4 w-4" />
-                  <span>Seleccionar imagen</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-                </label>
-              )}
+              <Label>Imágenes (máx. 3)</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i}>
+                    {imagePreviews[i] ? (
+                      <div className="relative inline-block w-full">
+                        <img
+                          src={imagePreviews[i]!}
+                          alt={`Preview ${i + 1}`}
+                          className="h-28 w-full rounded-lg border object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i)}
+                          className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-input bg-background px-2 py-5 text-xs text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground/70 h-28">
+                        <Upload className="h-4 w-4" />
+                        <span>{i === 0 ? 'Imagen 1' : i === 1 ? 'Imagen 2' : 'Imagen 3'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect(i)}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -354,9 +379,9 @@ export default function ProductsAdmin() {
               <TableRow key={p.id}>
                 <TableCell>
                   <div className="h-10 w-10 overflow-hidden rounded-md bg-muted">
-                    {p.image ? (
+                    {p.images?.[0] ? (
                       <img
-                        src={getProductImageUrl(p.image)}
+                        src={getProductImageUrl(p.images[0])}
                         alt={p.name}
                         className="h-full w-full object-cover"
                       />

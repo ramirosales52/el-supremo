@@ -11,7 +11,7 @@ function mapProduct(raw: any): Product {
     description: raw.description || undefined,
     basePrice: raw.basePrice,
     unit: raw.unit,
-    image: raw.image || undefined,
+    images: raw.images ?? (raw.image ? [raw.image] : undefined),
     isAvailable: raw.isAvailable,
     isOnSale: raw.isOnSale ?? false,
     discountPercentage: raw.discountPercentage ?? null,

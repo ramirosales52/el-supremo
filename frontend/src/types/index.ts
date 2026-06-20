@@ -18,7 +18,7 @@ export interface Product {
   description?: string;
   basePrice: number;
   unit: string;
-  image?: string;
+  images?: string[];
   isAvailable: boolean;
   isOnSale: boolean;
   discountPercentage: number | null;

@@ -3,98 +3,98 @@
 -- =============================================================
 
 -- PRODUCTS: Vacuno - Asado y Parrilla
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Tapa de asado', '', 22990, 'kg', '', TRUE, 1),
-  ('Vacío', '', 25990, 'kg', '', TRUE, 1),
-  ('Matambre', '', 26990, 'kg', '', TRUE, 1),
-  ('Entraña', '', 26990, 'kg', '', TRUE, 1),
-  ('Marucha', '', 22990, 'kg', '', TRUE, 1),
-  ('Falda', '', 19990, 'kg', '', TRUE, 1),
-  ('Costilla banderita', '', 23990, 'kg', '', TRUE, 1),
-  ('Costillar del medio', '', 25990, 'kg', '', TRUE, 1),
-  ('Costillar entero', '', 22990, 'kg', '', TRUE, 1),
-  ('Corte Mar del Plata', '', 24990, 'kg', '', TRUE, 1);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Tapa de asado', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Vacío', '', 25990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Matambre', '', 26990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Entraña', '', 26990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Marucha', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Falda', '', 19990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Costilla banderita', '', 23990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Costillar del medio', '', 25990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Costillar entero', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Corte Mar del Plata', '', 24990, 'kg', '[]'::jsonb, TRUE, 1);
 
 -- PRODUCTS: Vacuno - Pulpas y Cortes Finos
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Nalga', '', 28990, 'kg', '', TRUE, 1),
-  ('Tapa de nalga', '', 22990, 'kg', '', TRUE, 1),
-  ('Cuadrada', '', 24990, 'kg', '', TRUE, 1),
-  ('Bola de lomo', '', 24990, 'kg', '', TRUE, 1),
-  ('Peceto', '', 25990, 'kg', '', TRUE, 1),
-  ('Cuadril', '', 24990, 'kg', '', TRUE, 1),
-  ('Colita de cuadril', '', 28990, 'kg', '', TRUE, 1),
-  ('Lomo', '', 29990, 'kg', '', TRUE, 1),
-  ('Tortuguita', '', 22990, 'kg', '', TRUE, 1),
-  ('Palomita', '', 22990, 'kg', '', TRUE, 1);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Nalga', '', 28990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Tapa de nalga', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Cuadrada', '', 24990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Bola de lomo', '', 24990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Peceto', '', 25990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Cuadril', '', 24990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Colita de cuadril', '', 28990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Lomo', '', 29990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Tortuguita', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Palomita', '', 22990, 'kg', '[]'::jsonb, TRUE, 1);
 
 -- PRODUCTS: Vacuno - Cocina y Olla
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Roast Beef', '', 22990, 'kg', '', TRUE, 1),
-  ('Aguja', '', 18990, 'kg', '', TRUE, 1),
-  ('Paleta', '', 22990, 'kg', '', TRUE, 1),
-  ('Osobuco', '', 14990, 'kg', '', TRUE, 1);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Roast Beef', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Aguja', '', 18990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Paleta', '', 22990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Osobuco', '', 14990, 'kg', '[]'::jsonb, TRUE, 1);
 
 -- PRODUCTS: Vacuno - Bifes Premium
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Ojo de bife', '', 26990, 'kg', '', TRUE, 1),
-  ('Bife de chorizo', '', 26990, 'kg', '', TRUE, 1),
-  ('Entrecot', '', 26990, 'kg', '', TRUE, 1);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Ojo de bife', '', 26990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Bife de chorizo', '', 26990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Entrecot', '', 26990, 'kg', '[]'::jsonb, TRUE, 1);
 
 -- PRODUCTS: Vacuno - Costeletas
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Costeleta ancha', '', 20990, 'kg', '', TRUE, 1),
-  ('Costeleta angosta', '', 20990, 'kg', '', TRUE, 1),
-  ('Costeleta redonda', '', 21990, 'kg', '', TRUE, 1),
-  ('Carne picada común', '', 12990, 'kg', '', TRUE, 1);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Costeleta ancha', '', 20990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Costeleta angosta', '', 20990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Costeleta redonda', '', 21990, 'kg', '[]'::jsonb, TRUE, 1),
+  ('Carne picada común', '', 12990, 'kg', '[]'::jsonb, TRUE, 1);
 
 -- PRODUCTS: Cerdo
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Solomillo', '', 16990, 'kg', '', TRUE, 2),
-  ('Matambre', '', 16990, 'kg', '', TRUE, 2),
-  ('Churrasco', '', 16990, 'kg', '', TRUE, 2),
-  ('Bondiola', '', 12990, 'kg', '', TRUE, 2),
-  ('Marucha', '', 8990, 'kg', '', TRUE, 2),
-  ('Costilla', '', 10990, 'kg', '', TRUE, 2),
-  ('Vacío', '', 11990, 'kg', '', TRUE, 2),
-  ('Costeleta', '', 9990, 'kg', '', TRUE, 2),
-  ('Pulpa', '', 11990, 'kg', '', TRUE, 2),
-  ('Pulpa de paleta', '', 10990, 'kg', '', TRUE, 2);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Solomillo', '', 16990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Matambre', '', 16990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Churrasco', '', 16990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Bondiola', '', 12990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Marucha', '', 8990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Costilla', '', 10990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Vacío', '', 11990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Costeleta', '', 9990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Pulpa', '', 11990, 'kg', '[]'::jsonb, TRUE, 2),
+  ('Pulpa de paleta', '', 10990, 'kg', '[]'::jsonb, TRUE, 2);
 
 -- PRODUCTS: Pollo
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Pollo entero', '', 6990, 'kg', '', TRUE, 3),
-  ('Pollo trozado', '', 6990, 'kg', '', TRUE, 3),
-  ('Cuarto trasero', '', 5990, 'kg', '', TRUE, 3),
-  ('Pata de pollo', '', 6990, 'kg', '', TRUE, 3),
-  ('Muslo de pollo', '', 6990, 'kg', '', TRUE, 3),
-  ('Patamuslo', '', 6990, 'kg', '', TRUE, 3),
-  ('Alitas', '', 4990, 'kg', '', TRUE, 3),
-  ('Filet de pechuga', '', 13990, 'kg', '', TRUE, 3),
-  ('Filet de muslo', '', 13990, 'kg', '', TRUE, 3);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Pollo entero', '', 6990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Pollo trozado', '', 6990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Cuarto trasero', '', 5990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Pata de pollo', '', 6990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Muslo de pollo', '', 6990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Patamuslo', '', 6990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Alitas', '', 4990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Filet de pechuga', '', 13990, 'kg', '[]'::jsonb, TRUE, 3),
+  ('Filet de muslo', '', 13990, 'kg', '[]'::jsonb, TRUE, 3);
 
 -- PRODUCTS: Elaborados
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Hamburguesas de pollo', '', 9990, 'kg', '', TRUE, 4),
-  ('Hamburguesas de carne', '', 13990, 'kg', '', TRUE, 4),
-  ('Milanesa de vaca', '', 19900, 'kg', '', TRUE, 4),
-  ('Milanesa de pollo', '', 11900, 'kg', '', TRUE, 4),
-  ('Milanesa de cerdo', '', 11900, 'kg', '', TRUE, 4);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Hamburguesas de pollo', '', 9990, 'kg', '[]'::jsonb, TRUE, 4),
+  ('Hamburguesas de carne', '', 13990, 'kg', '[]'::jsonb, TRUE, 4),
+  ('Milanesa de vaca', '', 19900, 'kg', '[]'::jsonb, TRUE, 4),
+  ('Milanesa de pollo', '', 11900, 'kg', '[]'::jsonb, TRUE, 4),
+  ('Milanesa de cerdo', '', 11900, 'kg', '[]'::jsonb, TRUE, 4);
 
 -- PRODUCTS: Chacinados
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Chorizo puro cerdo', '', 11900, 'kg', '', TRUE, 5),
-  ('Morcilla casera', '', 11900, 'kg', '', TRUE, 5),
-  ('Salamín', '', 26900, 'kg', '', TRUE, 5);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Chorizo puro cerdo', '', 11900, 'kg', '[]'::jsonb, TRUE, 5),
+  ('Morcilla casera', '', 11900, 'kg', '[]'::jsonb, TRUE, 5),
+  ('Salamín', '', 26900, 'kg', '[]'::jsonb, TRUE, 5);
 
 -- PRODUCTS: Menudencias
-INSERT INTO products (name, description, "basePrice", unit, image, "isAvailable", "categoryId") VALUES
-  ('Mondongo', '', 12900, 'kg', '', TRUE, 6),
-  ('Riñón', '', 12900, 'kg', '', TRUE, 6),
-  ('Corazón', '', 12900, 'kg', '', TRUE, 6),
-  ('Chinchulín', '', 14900, 'kg', '', TRUE, 6),
-  ('Tripa gorda', '', 14900, 'kg', '', TRUE, 6),
-  ('Molleja', '', 39900, 'kg', '', TRUE, 6);
+INSERT INTO products (name, description, "basePrice", unit, images, "isAvailable", "categoryId") VALUES
+  ('Mondongo', '', 12900, 'kg', '[]'::jsonb, TRUE, 6),
+  ('Riñón', '', 12900, 'kg', '[]'::jsonb, TRUE, 6),
+  ('Corazón', '', 12900, 'kg', '[]'::jsonb, TRUE, 6),
+  ('Chinchulín', '', 14900, 'kg', '[]'::jsonb, TRUE, 6),
+  ('Tripa gorda', '', 14900, 'kg', '[]'::jsonb, TRUE, 6),
+  ('Molleja', '', 39900, 'kg', '[]'::jsonb, TRUE, 6);
 
 -- =============================================================
 -- MANY-TO-MANY: products <-> cut_options

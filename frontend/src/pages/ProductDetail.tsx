@@ -4,7 +4,7 @@ import { productsApi } from '../api/products';
 import { useCart } from '../context/CartContext';
 import { formatARS, QUANTITIES_KG, getEffectivePrice, getSalePrice } from '../lib/utils';
 import { getProductImageUrl } from '../api/storage';
-import { Check, ChevronLeft } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product, CutOption } from '../types';
 
 export default function ProductDetail() {
@@ -18,6 +18,7 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [customQty, setCustomQty] = useState(false);
   const [notes, setNotes] = useState('');
+  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     if (!id) return;
@@ -84,13 +85,53 @@ export default function ProductDetail() {
 
       <div className="mt-4 grid gap-10 md:grid-cols-[1.1fr_1fr]">
         <div>
-          {product.image && (
-            <div className="mb-6 overflow-hidden rounded-lg bg-muted">
-              <img
-                src={getProductImageUrl(product.image)}
-                alt={product.name}
-                className="w-full object-cover"
-              />
+          {(product.images?.length ?? 0) > 0 && (
+            <div className="mb-6 space-y-3">
+              <div className="relative overflow-hidden rounded-lg bg-muted">
+                <img
+                  src={getProductImageUrl(product.images![selectedImage])}
+                  alt={product.name}
+                  className="w-full object-cover"
+                />
+                {(product.images?.length ?? 0) > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImage((prev) => (prev === 0 ? product.images!.length - 1 : prev - 1))}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-black/40 p-1.5 text-white transition hover:bg-black/60"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImage((prev) => (prev === product.images!.length - 1 ? 0 : prev + 1))}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-black/40 p-1.5 text-white transition hover:bg-black/60"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
+              </div>
+              {(product.images?.length ?? 0) > 1 && (
+                <div className="flex gap-2">
+                  {product.images!.map((img, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedImage(i)}
+                      className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 transition cursor-pointer ${
+                        selectedImage === i ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={getProductImageUrl(img)}
+                        alt={`${product.name} ${i + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <span className="stamp text-primary">{isUnit ? 'Por unidad' : 'Por kilo'}</span>

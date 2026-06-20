@@ -197,9 +197,9 @@ export default function OrderDetail() {
                 className="flex items-center gap-4 rounded-lg bg-muted/50 p-3"
               >
                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
-                  {item.product.image ? (
+                  {item.product.images?.[0] ? (
                     <img
-                      src={getProductImageUrl(item.product.image)}
+                      src={getProductImageUrl(item.product.images[0])}
                       alt={item.product.name}
                       className="h-full w-full object-cover"
                     />

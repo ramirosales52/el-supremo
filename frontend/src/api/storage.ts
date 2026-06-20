@@ -2,9 +2,10 @@ import { supabase } from '../utils/supabase';
 
 const BUCKET = 'product-images';
 
-export async function uploadProductImage(file: File, productId: number): Promise<string> {
+export async function uploadProductImage(file: File, productId: number, index?: number): Promise<string> {
   const ext = file.name.split('.').pop() ?? 'jpg';
-  const path = `${productId}/${Date.now()}.${ext}`;
+  const suffix = index != null ? `-${index}` : '';
+  const path = `${productId}/${Date.now()}${suffix}.${ext}`;
 
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
     upsert: true,

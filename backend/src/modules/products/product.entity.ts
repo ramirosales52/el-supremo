@@ -23,8 +23,8 @@ export class Product {
   @Column({ length: 10, default: 'kg' })
   unit: string;
 
-  @Column({ nullable: true })
-  image: string;
+  @Column({ type: 'jsonb', nullable: true })
+  images: string[];
 
   @Column({ default: true })
   isAvailable: boolean;

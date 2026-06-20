@@ -59,9 +59,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       className="flex gap-3 pb-4 border-b border-gray-200"
                     >
                       <div className="w-14 h-14 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {item.product.image ? (
+                        {item.product.images?.[0] ? (
                           <img
-                            src={getProductImageUrl(item.product.image)}
+                            src={getProductImageUrl(item.product.images[0])}
                             alt={item.product.name}
                             className="h-full w-full object-cover"
                           />

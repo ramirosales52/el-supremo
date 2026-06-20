@@ -18,9 +18,10 @@ export class CreateProductDto {
   @IsOptional()
   unit?: string;
 
-  @IsString()
+  @IsArray()
   @IsOptional()
-  image?: string;
+  @IsString({ each: true })
+  images?: string[];
 
   @IsBoolean()
   @IsOptional()

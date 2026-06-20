@@ -38,7 +38,7 @@ CREATE TABLE products (
   description TEXT DEFAULT '',
   "basePrice" DECIMAL(10,2) NOT NULL,
   unit VARCHAR(10) DEFAULT 'kg',
-  image VARCHAR DEFAULT '',
+  images JSONB DEFAULT '[]'::jsonb,
   "isAvailable" BOOLEAN DEFAULT TRUE,
   "isOnSale" BOOLEAN DEFAULT FALSE,
   "discountPercentage" INTEGER DEFAULT NULL,

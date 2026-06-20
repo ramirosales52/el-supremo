@@ -13,9 +13,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="border border-gray-200 bg-white flex flex-col group">
       <div className="h-44 bg-gray-50 flex items-center justify-center relative overflow-hidden border-b border-gray-200">
-        {product.image ? (
+        {product.images?.[0] ? (
           <img
-            src={getProductImageUrl(product.image)}
+            src={getProductImageUrl(product.images[0])}
             alt={product.name}
             className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
           />

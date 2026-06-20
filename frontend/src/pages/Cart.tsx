@@ -48,9 +48,9 @@ export default function Cart() {
                 >
                   <div className="flex gap-4">
                     <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {item.product.image ? (
+                      {item.product.images?.[0] ? (
                         <img
-                          src={getProductImageUrl(item.product.image)}
+                          src={getProductImageUrl(item.product.images[0])}
                           alt={item.product.name}
                           className="h-full w-full object-cover"
                         />
