@@ -173,7 +173,7 @@ export default function ProductsAdmin() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageFiles([null, null, null]); setImagePreviews([null, null, null]); } }}>
-        <DialogContent className="sm:max-w-lg flex flex-col max-h-[90dvh]">
+        <DialogContent className="max-w-2xl flex flex-col max-h-[90dvh]">
           <DialogHeader>
             <DialogTitle>{editing?.id ? 'Editar' : 'Nuevo'} producto</DialogTitle>
             <DialogDescription>
@@ -366,6 +366,7 @@ export default function ProductsAdmin() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 text-center">#</TableHead>
               <TableHead className="w-14">Img</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Categoría</TableHead>
@@ -375,8 +376,9 @@ export default function ProductsAdmin() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((p) => (
+            {products.map((p, idx) => (
               <TableRow key={p.id}>
+                <TableCell className="text-center text-muted-foreground">{idx + 1}</TableCell>
                 <TableCell>
                   <div className="h-10 w-10 overflow-hidden rounded-md bg-muted">
                     {p.images?.[0] ? (
