@@ -88,11 +88,19 @@ export default function ProductDetail() {
           {(product.images?.length ?? 0) > 0 && (
             <div className="mb-6 space-y-3">
               <div className="relative overflow-hidden rounded-lg bg-muted">
-                <img
-                  src={getProductImageUrl(product.images![selectedImage])}
-                  alt={product.name}
-                  className="w-full object-cover"
-                />
+                <div
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${selectedImage * 100}%)` }}
+                >
+                  {product.images!.map((img, i) => (
+                    <img
+                      key={i}
+                      src={getProductImageUrl(img)}
+                      alt={`${product.name} ${i + 1}`}
+                      className="w-full shrink-0 object-cover"
+                    />
+                  ))}
+                </div>
                 {(product.images?.length ?? 0) > 1 && (
                   <>
                     <button
