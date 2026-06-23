@@ -5,10 +5,10 @@ import { ordersApi } from '../api/orders';
 import type { PaymentMethod } from '../types';
 import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD, TRANSFER_DISCOUNT_RATE, getEffectivePrice } from '../lib/utils';
 
-const paymentMethods: { value: PaymentMethod; label: string; description: string; comingSoon?: boolean }[] = [
+const paymentMethods: { value: PaymentMethod; label: string; description: string }[] = [
   { value: 'cash', label: 'Efectivo', description: 'Pagás en efectivo al recibir el pedido' },
   { value: 'transfer', label: 'Transferencia bancaria', description: '5% de descuento por transferencia' },
-  { value: 'card', label: 'Tarjeta de crédito/débito', description: 'Mercado Pago (próximamente)', comingSoon: true },
+  { value: 'card', label: 'Tarjeta de crédito/débito', description: 'Pagás con tarjeta al recibir el pedido' },
 ];
 
 export default function Checkout() {
@@ -161,19 +161,17 @@ export default function Checkout() {
               {paymentMethods.map((pm) => (
                 <label
                   key={pm.value}
-                  className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${
-                    paymentMethod === pm.value
+                  className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${paymentMethod === pm.value
                       ? 'border-red-600 bg-red-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  } ${pm.comingSoon ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    }`}
                 >
                   <input
                     type="radio"
                     name="paymentMethod"
                     value={pm.value}
                     checked={paymentMethod === pm.value}
-                    onChange={() => !pm.comingSoon && setPaymentMethod(pm.value)}
-                    disabled={pm.comingSoon}
+                    onChange={() => setPaymentMethod(pm.value)}
                     className="accent-red-600"
                   />
                   <div>

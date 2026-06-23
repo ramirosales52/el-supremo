@@ -50,8 +50,8 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {[1, 2].map((i) => (
             <Card key={i}>
               <CardHeader>
                 <Skeleton className="h-4 w-20" />
@@ -62,7 +62,7 @@ export default function Dashboard() {
             </Card>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
               <CardContent className="py-6">
@@ -85,7 +85,7 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
         {(Object.keys(statusLabels) as OrderStatus[]).map((status) => (
           <StatCard
             key={status}
