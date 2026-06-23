@@ -174,17 +174,19 @@ export default function CutOptionsAdmin() {
                   {o.requiresNotes ? '✅' : '—'}
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button variant="link" size="sm" onClick={() => openEdit(o)}>
-                    Editar
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={() => handleDelete(o.id)}
-                  >
-                    Eliminar
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="link" size="sm" onClick={() => openEdit(o)}>
+                      Editar
+                    </Button>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => handleDelete(o.id)}
+                    >
+                      Eliminar
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

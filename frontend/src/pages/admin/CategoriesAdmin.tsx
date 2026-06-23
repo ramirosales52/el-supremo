@@ -129,17 +129,19 @@ export default function CategoriesAdmin() {
                 <TableCell className="font-medium">{c.name}</TableCell>
                 <TableCell className="text-muted-foreground">{c.description || '—'}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="link" size="sm" onClick={() => openEdit(c)}>
-                    Editar
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={() => handleDelete(c.id)}
-                  >
-                    Eliminar
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="link" size="sm" onClick={() => openEdit(c)}>
+                      Editar
+                    </Button>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => handleDelete(c.id)}
+                    >
+                      Eliminar
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
