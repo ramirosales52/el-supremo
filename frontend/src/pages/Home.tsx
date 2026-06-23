@@ -6,6 +6,8 @@ import banner from '../assets/banner.png';
 import { productsApi } from '../api/products';
 import ProductCard from '../components/ProductCard';
 import Autoplay from 'embla-carousel-autoplay';
+import { Truck } from 'lucide-react';
+import { formatARS, FREE_SHIPPING_THRESHOLD } from '../lib/utils';
 import {
   Carousel,
   CarouselContent,
@@ -148,6 +150,37 @@ export default function Home() {
 <CarouselNext className="hidden sm:inline-flex text-zinc-700 border-zinc-300 cursor-pointer" />
             </Carousel>
           )}
+        </div>
+      </section>
+
+      <section className="bg-black relative overflow-hidden border-y border-zinc-800">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-red-600/5" />
+          <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-red-600/5" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="text-center md:text-left">
+              <p className="text-red-500 uppercase tracking-[0.2em] text-sm font-semibold">ENVÍO GRATIS</p>
+              <h2 className="text-4xl md:text-5xl text-white uppercase mt-3 leading-[1.1]" style={{ fontFamily: '"Anton", sans-serif', fontWeight: 400 }}>
+                En pedidos mayores a{' '}
+                <span className="text-red-500">{formatARS(FREE_SHIPPING_THRESHOLD)}</span>
+              </h2>
+              <p className="text-zinc-400 mt-3 text-lg max-w-xl">
+                Hacé tu pedido hoy y recibilo sin cargo en la puerta de tu casa.
+              </p>
+              <Link
+                to="/productos"
+                className="mt-6 inline-flex items-center gap-2 bg-red-600 text-white px-8 py-3 font-bold uppercase tracking-wider hover:bg-red-700 transition-colors"
+              >
+                Empezar pedido
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+            <Truck className="w-32 h-32 text-zinc-700 hidden md:block" />
+          </div>
         </div>
       </section>
 
