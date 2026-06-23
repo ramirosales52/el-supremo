@@ -18,8 +18,6 @@ import {
 
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendientes',
-  preparing: 'En preparación',
-  ready: 'Listos',
   delivered: 'Entregados',
 };
 
@@ -41,8 +39,6 @@ export default function Dashboard() {
 
   const stats = {
     pending: orders.filter((o) => o.status === 'pending').length,
-    preparing: orders.filter((o) => o.status === 'preparing').length,
-    ready: orders.filter((o) => o.status === 'ready').length,
     delivered: orders.filter((o) => o.status === 'delivered').length,
     total: orders.length,
   };

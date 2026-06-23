@@ -173,14 +173,15 @@ export default function ProductsAdmin() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditing(null); setImageFiles([null, null, null]); setImagePreviews([null, null, null]); } }}>
-        <DialogContent className="max-w-2xl flex flex-col max-h-[90dvh]">
+        <DialogContent className="sm:max-w-4xl max-w-4xl flex flex-col max-h-[90dvh]">
           <DialogHeader>
             <DialogTitle>{editing?.id ? 'Editar' : 'Nuevo'} producto</DialogTitle>
             <DialogDescription>
               Completá los datos del producto y guardá los cambios.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 overflow-y-auto flex-1 min-h-0">
+          <div className="-mx-4 overflow-y-auto flex-1 min-h-0">
+            <div className="space-y-4 px-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Nombre</Label>
               <Input
@@ -273,15 +274,21 @@ export default function ProductsAdmin() {
                 onValueChange={(value) => setEditing({ ...editing!, categoryId: value ? +value : undefined })}
               >
                 <SelectTrigger id="category">
-                  <SelectValue />
+                  <SelectValue>
+                    {(value: string | null) => {
+                      if (!value) return 'Seleccionar categoría';
+                      const cat = categories.find(c => String(c.id) === value);
+                      return cat?.name ?? value;
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)} label={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -353,6 +360,7 @@ export default function ProductsAdmin() {
               </div>
             </div>
           </div>
+          </div>
           <DialogFooter>
             <DialogClose render={<Button variant="outline">Cancelar</Button>} />
             <Button onClick={handleSave} disabled={saving}>
@@ -418,17 +426,19 @@ export default function ProductsAdmin() {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button variant="link" size="sm" onClick={() => openEdit(p)}>
-                    Editar
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={() => handleDelete(p.id)}
-                  >
-                    Eliminar
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="link" size="sm" onClick={() => openEdit(p)}>
+                      Editar
+                    </Button>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => handleDelete(p.id)}
+                    >
+                      Eliminar
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

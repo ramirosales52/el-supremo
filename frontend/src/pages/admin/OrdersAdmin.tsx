@@ -16,26 +16,20 @@ const paymentLabels: Record<string, string> = {
 
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendiente',
-  preparing: 'En preparación',
-  ready: 'Listo',
   delivered: 'Entregado',
 };
 
 const statusVariant: Record<OrderStatus, 'default' | 'secondary' | 'outline' | 'destructive' | 'ghost' | 'link'> = {
   pending: 'default',
-  preparing: 'secondary',
-  ready: 'outline',
   delivered: 'ghost',
 };
 
 const nextStatus: Record<OrderStatus, OrderStatus> = {
-  pending: 'preparing',
-  preparing: 'ready',
-  ready: 'delivered',
+  pending: 'delivered',
   delivered: 'delivered',
 };
 
-const statusOrder: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered'];
+const statusOrder: OrderStatus[] = ['pending', 'delivered'];
 
 export default function OrdersAdmin() {
   const { orders, filterByStatus, refresh } = useOrdersPolling();

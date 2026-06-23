@@ -47,7 +47,7 @@ export interface OrderItem {
   notes: string | null;
 }
 
-export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'delivered';
+export type OrderStatus = 'pending' | 'delivered';
 export type PaymentMethod = 'cash' | 'transfer' | 'card';
 export type PaymentStatus = 'pending' | 'paid' | 'cancelled';
 
