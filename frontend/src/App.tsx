@@ -24,6 +24,9 @@ function PublicLayout() {
   return (
     <>
       <Navbar />
+      <div className="bg-red-600 text-center text-xs sm:text-sm text-white py-1.5 px-4 font-medium tracking-wide uppercase">
+        5% de descuento abonando por transferencia
+      </div>
       <div className="flex-1 flex flex-col">
         <Outlet />
       </div>
