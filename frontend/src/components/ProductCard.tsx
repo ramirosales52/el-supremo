@@ -10,8 +10,10 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const navigate = useNavigate();
 
+  const unavailable = !product.isAvailable;
+
   return (
-    <div className="border border-gray-200 bg-white flex flex-col group">
+    <div className={`border border-gray-200 bg-white flex flex-col group ${unavailable ? 'opacity-60' : ''}`}>
       <div className="h-44 bg-gray-50 flex items-center justify-center relative overflow-hidden border-b border-gray-200">
         {product.images?.[0] ? (
           <img
@@ -25,6 +27,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         {product.isOnSale && product.discountPercentage && (
           <span className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white shadow-md">
             -{product.discountPercentage}%
+          </span>
+        )}
+        {unavailable && (
+          <span className="absolute top-2 right-2 rounded bg-gray-700 px-2 py-1 text-xs font-bold text-white shadow-md">
+            NO DISPONIBLE
           </span>
         )}
       </div>
@@ -54,9 +61,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <button
           onClick={() => navigate(`/producto/${product.id}`)}
-          className="cursor-pointer mt-3 w-full py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white active:scale-[0.98] transition-all tracking-wider"
+          disabled={unavailable}
+          className={`mt-3 w-full py-2.5 font-semibold text-sm tracking-wider transition-all ${
+            unavailable
+              ? 'cursor-not-allowed bg-gray-400 text-white'
+              : 'cursor-pointer bg-red-600 hover:bg-red-700 text-white active:scale-[0.98]'
+          }`}
         >
-          SELECCIONAR OPCIONES
+          {unavailable ? 'NO DISPONIBLE' : 'SELECCIONAR OPCIONES'}
         </button>
       </div>
     </div>

@@ -53,6 +53,7 @@ export default function ProductsAdmin() {
       unit: 'kg',
       categoryId: categories[0]?.id,
       cutOptions: [],
+      isAvailable: true,
     });
     setImageFiles([null, null, null]);
     setImagePreviews([null, null, null]);
@@ -340,6 +341,31 @@ export default function ProductsAdmin() {
               </div>
             )}
 
+            <div className="flex items-center gap-3 py-2">
+              <Label className="mb-0">Disponible</Label>
+              <button
+                type="button"
+                onClick={() =>
+                  setEditing({
+                    ...editing!,
+                    isAvailable: !editing?.isAvailable,
+                  })
+                }
+                className={`relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors ${
+                  editing?.isAvailable !== false ? 'bg-green-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    editing?.isAvailable !== false ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <span className="text-xs text-muted-foreground">
+                {editing?.isAvailable !== false ? 'Visible en la tienda' : 'Oculto para clientes'}
+              </span>
+            </div>
+
             <div className="grid gap-2">
               <Label>Opciones de corte</Label>
               <div className="flex flex-wrap gap-2">
@@ -402,7 +428,16 @@ export default function ProductsAdmin() {
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">{p.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {p.name}
+                    {!p.isAvailable && (
+                      <span className="rounded bg-gray-200 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
+                        NO DISPONIBLE
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-muted-foreground">{p.category.name}</TableCell>
                 <TableCell className="text-right font-medium">
                   <div className="flex items-center justify-end gap-2">

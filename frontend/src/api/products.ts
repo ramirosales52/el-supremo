@@ -30,8 +30,7 @@ export const productsApi = {
   ) => {
     let query = supabase
       .from('products')
-      .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))', { count: 'exact' })
-      .eq('isAvailable', true);
+      .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))', { count: 'exact' });
     if (categoryId) query = query.eq('categoryId', categoryId);
     if (search) {
       const normalized = search.normalize('NFD').replace(/[\u0300-\u036f]/g, '');

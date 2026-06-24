@@ -43,8 +43,10 @@ export default function ProductDetail() {
     [finalQty, unitPrice],
   );
 
+  const unavailable = !!(product && !product.isAvailable);
+
   const handleAdd = () => {
-    if (!product || finalQty <= 0) return;
+    if (!product || finalQty <= 0 || unavailable) return;
     addItem(product, selectedCut, finalQty, notes.trim(), true);
     navigate('/carrito');
   };
@@ -172,9 +174,14 @@ export default function ProductDetail() {
           </div>
           <button
             onClick={handleAdd}
-            className="mt-4 w-full cursor-pointer bg-primary px-4 py-3 font-bold uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90"
+            disabled={unavailable}
+            className={`mt-4 w-full px-4 py-3 font-bold uppercase tracking-wider transition ${
+              unavailable
+                ? 'cursor-not-allowed bg-gray-400 text-white'
+                : 'cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90'
+            }`}
           >
-            Agregar al pedido
+            {unavailable ? 'NO DISPONIBLE' : 'Agregar al pedido'}
           </button>
           <p className="mt-3 text-center text-xs text-muted-foreground">Envío solo en Marcos Juárez</p>
         </aside>
@@ -260,10 +267,21 @@ export default function ProductDetail() {
       <div className="sticky bottom-4 mt-10 md:hidden">
         <button
           onClick={handleAdd}
-          className="flex w-full cursor-pointer items-center justify-between bg-primary px-5 py-4 font-bold uppercase tracking-wider text-primary-foreground"
+          disabled={unavailable}
+          className={`flex w-full items-center justify-between px-5 py-4 font-bold uppercase tracking-wider transition ${
+            unavailable
+              ? 'cursor-not-allowed bg-gray-400 text-white'
+              : 'cursor-pointer bg-primary text-primary-foreground'
+          }`}
         >
-          <span>Agregar · {formatARS(lineTotal)}</span>
-          <span>→</span>
+          {unavailable ? (
+            <span>NO DISPONIBLE</span>
+          ) : (
+            <>
+              <span>Agregar · {formatARS(lineTotal)}</span>
+              <span>→</span>
+            </>
+          )}
         </button>
       </div>
     </div>
