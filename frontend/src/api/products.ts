@@ -22,10 +22,15 @@ function mapProduct(raw: any): Product {
 }
 
 export const productsApi = {
-  getAll: async (categoryId?: number, search?: string) => {
+  getAll: async (
+    categoryId?: number,
+    search?: string,
+    page: number = 1,
+    pageSize: number = 15
+  ) => {
     let query = supabase
       .from('products')
-      .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))')
+      .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))', { count: 'exact' })
       .eq('isAvailable', true);
     if (categoryId) query = query.eq('categoryId', categoryId);
     if (search) {
@@ -35,9 +40,11 @@ export const productsApi = {
         `product_search_text.ilike.%${normalized}%`
       );
     }
-    const { data, error } = await query.order('id');
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    const { data, error, count } = await query.order('id').range(from, to);
     if (error) throw error;
-    return (data ?? []).map(mapProduct);
+    return { products: (data ?? []).map(mapProduct), count: count ?? 0 };
   },
 
   search: async (query: string) => {

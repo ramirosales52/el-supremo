@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { productsApi } from '../api/products';
 import { categoriesApi } from '../api/categories';
 import type { Product, Category } from '../types';
 import ProductCard from '../components/ProductCard';
+
+const PAGE_SIZE = 16;
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,17 +16,73 @@ export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const hasMoreRef = useRef(true);
+  const loadingMoreRef = useRef(false);
+  const readyRef = useRef(false);
+  const pageRef = useRef(1);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const fetchProductsRef = useRef<((page: number, append: boolean) => Promise<void>) | null>(null);
+
+  const fetchProducts = useCallback(async (page: number, append: boolean) => {
+    if (append) {
+      loadingMoreRef.current = true;
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
+    const result = await productsApi.getAll(
+      selectedCategory ?? undefined,
+      searchQuery || undefined,
+      page,
+      PAGE_SIZE
+    );
+
+    setProducts((prev) => (append ? [...prev, ...result.products] : result.products));
+    hasMoreRef.current = page * PAGE_SIZE < result.count;
+
+    if (append) {
+      loadingMoreRef.current = false;
+      setLoadingMore(false);
+    } else {
+      readyRef.current = true;
+      setLoading(false);
+    }
+  }, [selectedCategory, searchQuery]);
+
+  fetchProductsRef.current = fetchProducts;
 
   useEffect(() => {
     categoriesApi.getAll().then(setCategories);
   }, []);
 
   useEffect(() => {
-    setLoading(true);
-    productsApi.getAll(selectedCategory ?? undefined, searchQuery || undefined)
-      .then(setProducts)
-      .finally(() => setLoading(false));
-  }, [selectedCategory, searchQuery]);
+    pageRef.current = 1;
+    hasMoreRef.current = true;
+    loadingMoreRef.current = false;
+    readyRef.current = false;
+    fetchProducts(1, false);
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && readyRef.current && !loadingMoreRef.current && hasMoreRef.current) {
+          loadingMoreRef.current = true;
+          pageRef.current += 1;
+          fetchProductsRef.current?.(pageRef.current, true);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   const handleCategoryChange = (catId: number | null) => {
     const params: Record<string, string> = {};
@@ -70,7 +128,7 @@ export default function Products() {
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="border border-gray-200 bg-white h-72 animate-pulse">
                 <div className="h-40 bg-gray-100 border-b border-gray-200" />
                 <div className="p-4 space-y-3">
@@ -92,6 +150,22 @@ export default function Products() {
             ))}
           </div>
         )}
+
+        <div ref={sentinelRef} className="py-8">
+          {loadingMore && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="border border-gray-200 bg-white h-72 animate-pulse">
+                  <div className="h-40 bg-gray-100 border-b border-gray-200" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-gray-100 w-3/4" />
+                    <div className="h-3 bg-gray-100 w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -40,7 +40,7 @@ export default function Home() {
 
   useEffect(() => {
     productsApi.getAll()
-      .then(products => setFeaturedProducts(products.slice(0, 8)))
+      .then(result => setFeaturedProducts(result.products.slice(0, 8)))
       .finally(() => setFeaturedLoading(false));
   }, []);
 
