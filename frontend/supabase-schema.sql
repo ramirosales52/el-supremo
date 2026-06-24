@@ -60,6 +60,7 @@ CREATE TABLE orders (
   "shippingCost" DECIMAL(10,2) DEFAULT 0,
   total DECIMAL(10,2) DEFAULT 0,
   notes TEXT,
+  "idempotencyKey" VARCHAR(255) UNIQUE DEFAULT NULL,
   createdAt TIMESTAMP DEFAULT NOW(),
   updatedAt TIMESTAMP DEFAULT NOW()
 );
@@ -120,3 +121,12 @@ INSERT INTO cut_options (name, description, "priceModifier", "requiresNotes") VA
   ('Muslo', 'Milanesa de muslo de pollo', NULL, FALSE),
   ('Pulpa', 'Milanesa de pulpa de cerdo', NULL, FALSE),
   ('Bondiola', 'Milanesa de bondiola', NULL, FALSE);
+
+-- =============================================================
+-- INDEXES
+-- =============================================================
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders (status);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders ("createdAt");
+CREATE INDEX IF NOT EXISTS idx_products_category ON products ("categoryId");
+CREATE INDEX IF NOT EXISTS idx_products_available ON products ("isAvailable");
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items ("orderId");

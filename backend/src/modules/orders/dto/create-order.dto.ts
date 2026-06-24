@@ -40,6 +40,15 @@ export class CreateOrderDto {
 
   @IsString()
   @IsOptional()
+  paymentMethod?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  idempotencyKey?: string;
+
+  @IsString()
+  @IsOptional()
   notes?: string;
 
   @IsArray()

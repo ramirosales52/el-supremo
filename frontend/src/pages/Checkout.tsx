@@ -23,6 +23,7 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
 
   const discount = useMemo(() => {
     if (paymentMethod === 'transfer') return subtotal * TRANSFER_DISCOUNT_RATE;
@@ -88,6 +89,7 @@ export default function Checkout() {
         discount,
         shippingCost,
         total,
+        idempotencyKey,
         notes: notes.trim() || undefined,
         items: items.map((item) => {
           const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);

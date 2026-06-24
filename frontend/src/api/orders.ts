@@ -11,6 +11,7 @@ interface CreateOrderPayload {
   shippingCost: number;
   total: number;
   notes?: string;
+  idempotencyKey?: string;
   items: {
     productId: number;
     quantity: number;
@@ -98,7 +99,17 @@ export const ordersApi = {
       .insert(orderFields)
       .select()
       .single();
-    if (orderError) throw orderError;
+    if (orderError) {
+      if (orderError.code === '23505' && input.idempotencyKey) {
+        const { data: existing } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('idempotencyKey', input.idempotencyKey)
+          .single();
+        if (existing) return ordersApi.getById(existing.id);
+      }
+      throw orderError;
+    }
 
     if (items.length) {
       const orderItems = items.map((item) => ({

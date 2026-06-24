@@ -17,17 +17,34 @@ export class Order {
   customerPhone: string;
 
   @Column({ length: 300, nullable: true })
-  customerAddress: string;
+  customerAddress: string | null;
 
-  @Column({
-    type: 'varchar',
-    length: 20,
-    default: 'pending'
-  })
+  @Column({ type: 'varchar', length: 20, default: 'pending' })
   status: OrderStatus;
 
+  @Column({ type: 'varchar', length: 20, default: 'cash' })
+  paymentMethod: string;
+
+  @Column({ type: 'varchar', length: 20, default: 'pending' })
+  paymentStatus: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  subtotal: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  discount: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  shippingCost: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  total: number;
+
   @Column({ type: 'text', nullable: true })
-  notes: string;
+  notes: string | null;
+
+  @Column({ length: 255, nullable: true, unique: true })
+  idempotencyKey: string | null;
 
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, eager: true })
   items: OrderItem[];

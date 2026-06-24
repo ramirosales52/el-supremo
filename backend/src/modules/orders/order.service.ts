@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Order } from './order.entity';
 import { OrderItem } from './order-item.entity';
 import { Product } from '../products/product.entity';
@@ -8,6 +8,10 @@ import { CutOption } from '../cut-options/cut-option.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderGateway } from './order.gateway';
+
+const SHIPPING_COST = 3500;
+const FREE_SHIPPING_THRESHOLD = 50000;
+const TRANSFER_DISCOUNT_RATE = 0.05;
 
 @Injectable()
 export class OrderService {
@@ -37,23 +41,47 @@ export class OrderService {
   }
 
   async create(dto: CreateOrderDto): Promise<Order> {
-    const items: OrderItem[] = [];
-
-    for (const itemDto of dto.items) {
-      const product = await this.productRepo.findOne({
-        where: { id: itemDto.productId },
+    if (dto.idempotencyKey) {
+      const existing = await this.repo.findOne({
+        where: { idempotencyKey: dto.idempotencyKey },
       });
+      if (existing) return existing;
+    }
+
+    const productIds = [...new Set(dto.items.map((i) => i.productId))];
+    const products = await this.productRepo.find({
+      where: { id: In(productIds) },
+      relations: ['cutOptions'],
+    });
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    const cutOptionIds = [
+      ...new Set(dto.items.filter((i) => i.cutOptionId).map((i) => i.cutOptionId!)),
+    ];
+    const cutOptions =
+      cutOptionIds.length > 0
+        ? await this.cutOptionRepo.find({ where: { id: In(cutOptionIds) } })
+        : [];
+    const cutOptionMap = new Map(cutOptions.map((c) => [c.id, c]));
+
+    const paymentMethod = dto.paymentMethod || 'cash';
+
+    const orderItems: OrderItem[] = [];
+    for (const itemDto of dto.items) {
+      const product = productMap.get(itemDto.productId);
       if (!product) {
         throw new NotFoundException(`Product #${itemDto.productId} not found`);
       }
 
       let unitPrice = Number(product.basePrice);
-      let cutOption: CutOption | null = null;
 
+      if (product.isOnSale && product.discountPercentage && product.discountPercentage > 0) {
+        unitPrice = unitPrice * (1 - product.discountPercentage / 100);
+      }
+
+      let cutOption: CutOption | null = null;
       if (itemDto.cutOptionId) {
-        cutOption = await this.cutOptionRepo.findOne({
-          where: { id: itemDto.cutOptionId },
-        });
+        cutOption = cutOptionMap.get(itemDto.cutOptionId) ?? null;
         if (cutOption?.priceModifier) {
           unitPrice += Number(cutOption.priceModifier);
         }
@@ -68,18 +96,34 @@ export class OrderService {
       orderItem.unit = itemDto.unit || product.unit;
       orderItem.unitPrice = unitPrice;
       orderItem.notes = itemDto.notes ?? null;
-      items.push(orderItem);
+      orderItems.push(orderItem);
     }
 
-    const order = this.repo.create({
-      customerName: dto.customerName,
-      customerPhone: dto.customerPhone,
-      customerAddress: dto.customerAddress || null,
-      notes: dto.notes || null,
-      items,
-    } as any);
+    let subtotal = 0;
+    for (const item of orderItems) {
+      subtotal += Number(item.unitPrice) * Number(item.quantity);
+    }
 
-    const saved = await this.repo.save(order) as unknown as Order;
+    const discount =
+      paymentMethod === 'transfer' ? subtotal * TRANSFER_DISCOUNT_RATE : 0;
+    const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+    const total = subtotal - discount + shippingCost;
+
+    const order = this.repo.create() as Order;
+    order.customerName = dto.customerName;
+    order.customerPhone = dto.customerPhone;
+    order.customerAddress = dto.customerAddress || null;
+    order.paymentMethod = paymentMethod;
+    order.paymentStatus = paymentMethod === 'cash' ? 'pending' : 'pending';
+    order.subtotal = subtotal;
+    order.discount = discount;
+    order.shippingCost = shippingCost;
+    order.total = total;
+    order.notes = dto.notes || null;
+    order.idempotencyKey = dto.idempotencyKey || null;
+    order.items = orderItems;
+
+    const saved = await this.repo.save(order);
     this.orderGateway.notifyNewOrder(saved);
     return saved;
   }
