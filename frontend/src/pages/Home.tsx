@@ -6,7 +6,7 @@ import banner from '../assets/banner.png';
 import { productsApi } from '../api/products';
 import ProductCard from '../components/ProductCard';
 import Autoplay from 'embla-carousel-autoplay';
-import { Truck } from 'lucide-react';
+import { Banknote, CreditCard, Landmark, Truck } from 'lucide-react';
 import { formatARS, FREE_SHIPPING_THRESHOLD } from '../lib/utils';
 import {
   Carousel,
@@ -180,6 +180,42 @@ export default function Home() {
               </Link>
             </div>
             <Truck className="w-32 h-32 text-zinc-700 hidden md:block" />
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-zinc-50 max-w-full px-4 sm:px-6 lg:px-8 py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-red-500 uppercase tracking-[0.15em] text-sm font-semibold">MEDIOS DE PAGO</span>
+            <h2 className="mt-4 text-4xl md:text-5xl text-zinc-900 uppercase tracking-[0.05em]" style={{ fontFamily: '"Anton", sans-serif', fontWeight: 400 }}>ELEGÍ CÓMO PAGAR</h2>
+            <p className="mt-3 text-lg text-zinc-500">Todos los medios, vos elegís.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="border border-zinc-200 bg-white p-6 text-center hover:border-red-500/50 transition-colors group">
+              <Banknote className="w-10 h-10 text-red-500 mx-auto mb-4" />
+              <h3 className="text-zinc-900 text-lg font-semibold mb-2">Efectivo</h3>
+              <p className="text-zinc-500 text-sm">Pagás en efectivo al recibir el pedido</p>
+            </div>
+
+            <div className="border border-zinc-200 bg-white p-6 text-center hover:border-red-500/50 transition-colors group">
+              <Landmark className="w-10 h-10 text-red-500 mx-auto mb-4" />
+              <h3 className="text-zinc-900 text-lg font-semibold mb-2">Transferencia bancaria</h3>
+              <p className="text-zinc-500 text-sm">5% de descuento por transferencia</p>
+            </div>
+
+            <div className="border border-zinc-200 bg-white p-6 text-center hover:border-red-500/50 transition-colors group">
+              <CreditCard className="w-10 h-10 text-red-500 mx-auto mb-4" />
+              <h3 className="text-zinc-900 text-lg font-semibold mb-2">Tarjeta crédito/débito</h3>
+              <p className="text-zinc-500 text-sm">Pagás con cualquier tarjeta al recibir el pedido</p>
+            </div>
+
+            <div className="border border-zinc-200 bg-white p-6 text-center hover:border-red-500/50 transition-colors group">
+              <CreditCard className="w-10 h-10 text-red-500 mx-auto mb-4" />
+              <h3 className="text-zinc-900 text-lg font-semibold mb-2">Tarjeta local</h3>
+              <p className="text-zinc-500 text-sm">Marcos Juárez y Coyspu en 3 cuotas</p>
+            </div>
           </div>
         </div>
       </section>
