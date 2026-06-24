@@ -7,6 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MessageCircle } from 'lucide-react';
+
+function getWhatsAppUrl(phone: string, orderId: number, items: Order['items']): string {
+  const cleanPhone = phone.replace(/\D/g, '');
+  const productList = items
+    .map(
+      (item) =>
+        `- ${item.quantity} ${item.unit} ${item.product.name}${item.cutOption ? ` (${item.cutOption.name})` : ''}`,
+    )
+    .join('\n');
+  const message = encodeURIComponent(
+    `¡Hola! Recibimos tu pedido.\n\nProductos:\n${productList}\n\nEstamos preparándolo y te avisaremos cuando esté listo. ¡Gracias por tu compra!`
+  );
+  return `https://wa.me/${cleanPhone}?text=${message}`;
+}
 
 const paymentLabels: Record<string, string> = {
   cash: 'Efectivo',
@@ -96,6 +111,20 @@ export default function OrdersAdmin() {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
+                    <a
+                      href={getWhatsAppUrl(order.customerPhone, order.id, order.items)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-600 border-green-300 hover:bg-green-50"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        WhatsApp
+                      </Button>
+                    </a>
                     <Button
                       variant="outline"
                       size="sm"

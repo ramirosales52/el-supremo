@@ -7,8 +7,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, MessageCircle } from 'lucide-react';
 import { getProductImageUrl } from '@/api/storage';
+
+function getWhatsAppUrl(phone: string, orderId: number, items: Order['items']): string {
+  const cleanPhone = phone.replace(/\D/g, '');
+  const productList = items
+    .map(
+      (item) =>
+        `- ${item.quantity} ${item.unit} ${item.product.name}${item.cutOption ? ` (${item.cutOption.name})` : ''}`,
+    )
+    .join('\n');
+  const message = encodeURIComponent(
+    `¡Hola! Recibimos tu pedido.\n\nProductos:\n${productList}\n\nEstamos preparándolo y te avisaremos cuando esté listo. ¡Gracias por tu compra!`
+  );
+  return `https://wa.me/${cleanPhone}?text=${message}`;
+}
 
 function effectivePrice(item: Order['items'][0]) {
   return item.unitPrice || Number(item.product.basePrice) + Number(item.cutOption?.priceModifier ?? 0);
@@ -99,9 +113,25 @@ export default function OrderDetail() {
             {new Date(order.createdAt).toLocaleString('es-AR')}
           </p>
         </div>
-        <Badge variant={statusVariant[order.status]} className="ml-auto">
-          {statusLabels[order.status]}
-        </Badge>
+        <div className="ml-auto flex items-center gap-2">
+          <a
+            href={getWhatsAppUrl(order.customerPhone, order.id, order.items)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-green-600 border-green-300 hover:bg-green-50"
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              WhatsApp
+          </Button>
+        </a>
+          <Badge variant={statusVariant[order.status]}>
+            {statusLabels[order.status]}
+          </Badge>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
