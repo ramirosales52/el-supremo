@@ -90,7 +90,7 @@ export default function Navbar() {
     <nav className="bg-black sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-3 shrink-0">
+          <Link to="/" onClick={() => { if (location.pathname === '/') window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex items-center gap-3 shrink-0">
             <img src={logo} alt="El Supremo" className="h-8 w-auto" />
           </Link>
 

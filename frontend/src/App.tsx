@@ -17,6 +17,7 @@ import ProductsAdmin from './pages/admin/ProductsAdmin';
 import CategoriesAdmin from './pages/admin/CategoriesAdmin';
 import CutOptionsAdmin from './pages/admin/CutOptionsAdmin';
 import WhatsAppButton from './components/WhatsAppButton';
+import GoToTopButton from './components/GoToTopButton';
 
 function PublicLayout() {
   const { pathname, search } = useLocation();
@@ -42,6 +43,8 @@ function ProtectedAdmin({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+  const isProducts = pathname === '/productos';
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <Routes>
@@ -70,6 +73,7 @@ export default function App() {
           <Route path="cortes" element={<CutOptionsAdmin />} />
         </Route>
       </Routes>
+      {isProducts && <GoToTopButton />}
       <WhatsAppButton />
     </div>
   );

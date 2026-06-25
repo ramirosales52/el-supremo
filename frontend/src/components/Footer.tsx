@@ -1,21 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { categoriesApi } from '../api/categories';
 import type { Category } from '../types';
 import logo from '../assets/logo-blanco.png';
 
 export default function Footer() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const location = useLocation();
 
   useEffect(() => {
     categoriesApi.getAll().then(setCategories);
   }, []);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
   return (
     <footer className="bg-black border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3">
+            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3">
               <img src={logo} alt="El Supremo" className="h-8 w-auto" />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
