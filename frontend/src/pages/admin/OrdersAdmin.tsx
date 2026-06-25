@@ -9,16 +9,23 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageCircle } from 'lucide-react';
 
-function getWhatsAppUrl(phone: string, orderId: number, items: Order['items']): string {
-  const cleanPhone = phone.replace(/\D/g, '');
-  const productList = items
+function getWhatsAppUrl(order: Order): string {
+  const cleanPhone = order.customerPhone.replace(/\D/g, '');
+  const productList = order.items
     .map(
       (item) =>
         `- ${item.quantity} ${item.unit} ${item.product.name}${item.cutOption ? ` (${item.cutOption.name})` : ''}`,
     )
     .join('\n');
+  let deliveryText = '';
+  if (order.deliveryDate) {
+    const d = new Date(order.deliveryDate + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const slotLabel = order.deliveryTimeSlot === 'morning' ? 'Mañana' : 'Tarde';
+    deliveryText = `\n\n📅 Entrega: ${dateStr} - ${slotLabel}`;
+  }
   const message = encodeURIComponent(
-    `¡Hola! Recibimos tu pedido.\n\nProductos:\n${productList}\n\nEstamos preparándolo y te avisaremos cuando esté listo. ¡Gracias por tu compra!`
+    `¡Hola! Recibimos tu pedido.${deliveryText}\n\nProductos:\n${productList}\n\nEstamos preparándolo y te avisaremos cuando esté listo. ¡Gracias por tu compra!`
   );
   return `https://wa.me/${cleanPhone}?text=${message}`;
 }
@@ -112,7 +119,7 @@ export default function OrdersAdmin() {
                   </div>
                   <div className="flex gap-2">
                     <a
-                      href={getWhatsAppUrl(order.customerPhone, order.id, order.items)}
+                      href={getWhatsAppUrl(order)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -155,7 +162,7 @@ export default function OrdersAdmin() {
                   {order.items.length} producto{order.items.length !== 1 ? 's' : ''} · Total: ${order.total.toFixed(2)}
                 </p>
                 {order.paymentMethod && (
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex gap-2 mt-1 flex-wrap">
                     <Badge variant="outline" className="text-[10px]">
                       {paymentLabels[order.paymentMethod]}
                     </Badge>
@@ -171,6 +178,12 @@ export default function OrdersAdmin() {
                     ) : (
                       <Badge variant="ghost" className="text-[10px] text-green-600">
                         Envío gratis
+                      </Badge>
+                    )}
+                    {order.deliveryDate && (
+                      <Badge variant="secondary" className="text-[10px]">
+                        📅 {new Date(order.deliveryDate + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                        {order.deliveryTimeSlot === 'morning' ? ' Mañana' : ' Tarde'}
                       </Badge>
                     )}
                   </div>

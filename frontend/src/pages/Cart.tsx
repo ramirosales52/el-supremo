@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getProductImageUrl } from '../api/storage';
-import { getEffectivePrice } from '../lib/utils';
+import { getEffectivePrice, CUTOFF_HOUR } from '../lib/utils';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart } = useCart();
@@ -185,6 +185,17 @@ export default function Cart() {
               >
                 Seguir comprando
               </Link>
+            </div>
+
+            <div className="border border-amber-200 bg-amber-50 p-4 mt-4">
+              <h4 className="text-sm font-semibold text-amber-800 mb-1">Horarios de entrega</h4>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                Pedidos antes de las {CUTOFF_HOUR}:00 hs → <strong>hoy por la tarde</strong><br />
+                Pedidos después de las {CUTOFF_HOUR}:00 hs → <strong>mañana por la tarde</strong>
+              </p>
+              <p className="text-xs text-amber-600 mt-1">
+                En el paso siguiente podés elegir la fecha y franja horaria que prefieras.
+              </p>
             </div>
           </div>
         </div>

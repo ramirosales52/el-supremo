@@ -1,5 +1,5 @@
 import { supabase } from '../utils/supabase';
-import type { Order, OrderStatus, PaymentMethod, PaymentStatus, OrderItem, Product, CutOption } from '../types';
+import type { Order, OrderStatus, PaymentMethod, PaymentStatus, OrderItem, Product, CutOption, DeliveryTimeSlot } from '../types';
 
 interface CreateOrderPayload {
   customerName: string;
@@ -12,6 +12,8 @@ interface CreateOrderPayload {
   total: number;
   notes?: string;
   idempotencyKey?: string;
+  deliveryDate?: string;
+  deliveryTimeSlot?: DeliveryTimeSlot;
   items: {
     productId: number;
     quantity: number;
@@ -50,6 +52,8 @@ function mapOrder(raw: any): Order {
     shippingCost: Number(raw.shippingCost),
     total: Number(raw.total),
     notes: raw.notes || undefined,
+    deliveryDate: raw.deliveryDate || undefined,
+    deliveryTimeSlot: raw.deliveryTimeSlot || undefined,
     items: (raw.items ?? []).map(mapOrderItem),
     createdAt: raw.createdat,
     updatedAt: raw.updatedat,

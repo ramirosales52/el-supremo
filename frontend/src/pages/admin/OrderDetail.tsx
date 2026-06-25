@@ -10,16 +10,23 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, MessageCircle } from 'lucide-react';
 import { getProductImageUrl } from '@/api/storage';
 
-function getWhatsAppUrl(phone: string, orderId: number, items: Order['items']): string {
-  const cleanPhone = phone.replace(/\D/g, '');
-  const productList = items
+function getWhatsAppUrl(order: Order): string {
+  const cleanPhone = order.customerPhone.replace(/\D/g, '');
+  const productList = order.items
     .map(
       (item) =>
         `- ${item.quantity} ${item.unit} ${item.product.name}${item.cutOption ? ` (${item.cutOption.name})` : ''}`,
     )
     .join('\n');
+  let deliveryText = '';
+  if (order.deliveryDate) {
+    const d = new Date(order.deliveryDate + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const slotLabel = order.deliveryTimeSlot === 'morning' ? 'Mañana' : 'Tarde';
+    deliveryText = `\n\n📅 Entrega: ${dateStr} - ${slotLabel}`;
+  }
   const message = encodeURIComponent(
-    `¡Hola! Recibimos tu pedido.\n\nProductos:\n${productList}\n\nEstamos preparándolo y te avisaremos cuando esté listo. ¡Gracias por tu compra!`
+    `¡Hola! Recibimos tu pedido.${deliveryText}\n\nProductos:\n${productList}\n\nEstamos preparándolo y te avisaremos cuando esté listo. ¡Gracias por tu compra!`
   );
   return `https://wa.me/${cleanPhone}?text=${message}`;
 }
@@ -115,7 +122,7 @@ export default function OrderDetail() {
         </div>
         <div className="ml-auto flex items-center gap-2">
           <a
-            href={getWhatsAppUrl(order.customerPhone, order.id, order.items)}
+            href={getWhatsAppUrl(order)}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -156,6 +163,30 @@ export default function OrderDetail() {
             )}
           </CardContent>
         </Card>
+
+        {order.deliveryDate && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Entrega</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Fecha</span>
+                <span className="font-medium">
+                  {new Date(order.deliveryDate + 'T12:00:00').toLocaleDateString('es-AR', {
+                    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Franja</span>
+                <span className="font-medium">
+                  {order.deliveryTimeSlot === 'morning' ? 'Mañana (9:00 - 13:00)' : 'Tarde (14:00 - 19:00)'}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>

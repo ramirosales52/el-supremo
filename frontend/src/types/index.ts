@@ -50,6 +50,7 @@ export interface OrderItem {
 export type OrderStatus = 'pending' | 'delivered';
 export type PaymentMethod = 'cash' | 'transfer' | 'card';
 export type PaymentStatus = 'pending' | 'paid' | 'cancelled';
+export type DeliveryTimeSlot = 'morning' | 'afternoon';
 
 export interface Order {
   id: number;
@@ -64,6 +65,8 @@ export interface Order {
   shippingCost: number;
   total: number;
   notes?: string;
+  deliveryDate?: string;
+  deliveryTimeSlot?: DeliveryTimeSlot;
   items: OrderItem[];
   createdAt: string;
   updatedAt: string;
