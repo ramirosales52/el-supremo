@@ -18,7 +18,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import logo from '@/assets/logo-blanco.png';
+import logo from '@/assets/logo.png';
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -34,7 +34,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-20 items-center justify-center border-b px-5">
-        <img src={logo} alt="El Supremo" className="h-10 w-auto" />
+        <img src={logo} alt="El Supremo" className="h-28 w-auto" />
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
@@ -95,7 +95,7 @@ export default function AdminLayout() {
             }
           />
         </Sheet>
-        <img src={logo} alt="El Supremo" className="h-8 w-auto" />
+        <img src={logo} alt="El Supremo" className="h-28 w-auto" />
       </div>
 
       {/* Desktop sidebar */}

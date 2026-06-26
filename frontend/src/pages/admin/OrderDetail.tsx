@@ -62,6 +62,7 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -79,6 +80,18 @@ export default function OrderDetail() {
       setOrder(await ordersApi.getById(order.id));
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!order) return;
+    if (!confirm('¿Eliminar este pedido?')) return;
+    setDeleting(true);
+    try {
+      await ordersApi.delete(order.id);
+      navigate('/admin/pedidos');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -310,18 +323,26 @@ export default function OrderDetail() {
         </CardContent>
       </Card>
 
-      {order.status !== 'delivered' && (
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => navigate('/admin/pedidos')}>
-            Volver
-          </Button>
+      <div className="flex justify-end gap-3">
+        <Button variant="outline" onClick={() => navigate('/admin/pedidos')}>
+          Volver
+        </Button>
+        <Button
+          variant="link"
+          className="text-destructive"
+          onClick={handleDelete}
+          disabled={deleting}
+        >
+          {deleting ? '...' : 'Eliminar pedido'}
+        </Button>
+        {order.status !== 'delivered' && (
           <Button onClick={handleAdvanceStatus} disabled={updating}>
             {updating
               ? '...'
               : `Avanzar a ${statusLabels[nextStatus[order.status]]}`}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

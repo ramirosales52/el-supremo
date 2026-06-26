@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { categoriesApi } from '../api/categories';
 import type { Category } from '../types';
-import logo from '../assets/logo-blanco.png';
+import logo from '../assets/logo-final.png';
 
 export default function Footer() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -22,12 +22,12 @@ export default function Footer() {
     <footer className="bg-black border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="space-y-4">
-            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3">
-              <img src={logo} alt="El Supremo" className="h-8 w-auto" />
+          <div className="space-y-4 flex flex-col items-center md:items-start">
+            <Link to="/" onClick={handleLogoClick} className="flex items-center justify-center gap-3">
+              <img src={logo} alt="El Supremo" className="h-28 w-auto" />
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Pedí como quieras. Nosotros lo preparamos.
+            <p className="text-gray-400 text-sm leading-relaxed uppercase text-center md:text-left">
+              Pedí como quieras.<br />Nosotros lo preparamos.
             </p>
           </div>
 

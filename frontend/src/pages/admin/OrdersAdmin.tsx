@@ -57,6 +57,7 @@ export default function OrdersAdmin() {
   const { orders, filterByStatus, refresh } = useOrdersPolling();
   const [filter, setFilter] = useState<OrderStatus | undefined>(undefined);
   const [updating, setUpdating] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const filteredOrders = filterByStatus(filter);
@@ -70,6 +71,17 @@ export default function OrdersAdmin() {
       refresh();
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Eliminar este pedido?')) return;
+    setDeleting(id);
+    try {
+      await ordersApi.delete(id);
+      refresh();
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -139,6 +151,17 @@ export default function OrdersAdmin() {
                     >
                       Detalle
                     </Button>
+                    {order.status !== 'delivered' && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => handleDelete(order.id)}
+                        disabled={deleting === order.id}
+                      >
+                        {deleting === order.id ? '...' : 'Eliminar'}
+                      </Button>
+                    )}
                     {order.status !== 'delivered' && (
                       <Button
                         size="sm"
