@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { ordersApi } from '../api/orders';
 import type { PaymentMethod, DeliveryTimeSlot } from '../types';
 import {
   SHIPPING_COST, FREE_SHIPPING_THRESHOLD, TRANSFER_DISCOUNT_RATE, getEffectivePrice,
-  CUTOFF_HOUR, DELIVERY_SLOTS, getAvailableDeliveryDates, formatDeliveryDate, toDateInputValue
+  CUTOFF_HOUR, DELIVERY_SLOTS, getAvailableDeliveryDates, getAvailableSlots, formatDeliveryDate, toDateInputValue
 } from '../lib/utils';
 
 const paymentMethods: { value: PaymentMethod; label: string; description: string }[] = [
@@ -37,6 +37,18 @@ export default function Checkout() {
     () => availableDates.find(d => toDateInputValue(d) === deliveryDate),
     [deliveryDate, availableDates]
   );
+
+  const availableSlots = useMemo(() => {
+    if (!selectedDateObj) return DELIVERY_SLOTS;
+    const validSlots = getAvailableSlots(selectedDateObj);
+    return DELIVERY_SLOTS.filter(s => validSlots.includes(s.value));
+  }, [selectedDateObj]);
+
+  useEffect(() => {
+    if (availableSlots.length > 0 && !availableSlots.some(s => s.value === deliveryTimeSlot)) {
+      setDeliveryTimeSlot(availableSlots[0].value);
+    }
+  }, [availableSlots, deliveryTimeSlot]);
 
   const discount = useMemo(() => {
     if (paymentMethod === 'transfer') return subtotal * TRANSFER_DISCOUNT_RATE;
@@ -223,7 +235,7 @@ export default function Checkout() {
             <div className="border border-gray-200 bg-white p-5 space-y-3">
               <h3 className="font-semibold text-gray-900">Elegí tu franja horaria</h3>
               <div className="grid grid-cols-2 gap-3">
-                {DELIVERY_SLOTS.map((slot) => (
+                {availableSlots.map((slot) => (
                   <label
                     key={slot.value}
                     className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${

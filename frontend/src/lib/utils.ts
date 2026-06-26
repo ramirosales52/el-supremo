@@ -37,6 +37,24 @@ export function getAvailableDeliveryDates(): Date[] {
   return dates;
 }
 
+export function getAvailableSlots(date: Date): DeliveryTimeSlot[] {
+  const now = new Date();
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  const dateNorm = new Date(date);
+  dateNorm.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round((dateNorm.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const isAfterCutoff = now.getHours() >= CUTOFF_HOUR;
+
+  if (diffDays === 0) return ['afternoon'];
+
+  if (diffDays === 1 && isAfterCutoff) return ['afternoon'];
+
+  return ['morning', 'afternoon'];
+}
+
 const DAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const MONTH_NAMES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
