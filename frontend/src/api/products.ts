@@ -41,7 +41,7 @@ export const productsApi = {
     }
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
-    const { data, error, count } = await query.order('id').range(from, to);
+    const { data, error, count } = await query.order('categoryId').order('name').range(from, to);
     if (error) throw error;
     return { products: (data ?? []).map(mapProduct), count: count ?? 0 };
   },
@@ -54,7 +54,7 @@ export const productsApi = {
     const { data, error } = await supabase
       .from('products')
       .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))')
-      .order('id');
+      .order('categoryId').order('name');
     if (error) throw error;
     return (data ?? []).map(mapProduct);
   },
