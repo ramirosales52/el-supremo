@@ -74,7 +74,7 @@ export default function App() {
         </Route>
       </Routes>
       {isProducts && <GoToTopButton />}
-      <WhatsAppButton />
+      {!pathname.startsWith('/admin') && <WhatsAppButton />}
     </div>
   );
 }
