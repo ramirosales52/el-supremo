@@ -18,6 +18,7 @@ import CategoriesAdmin from './pages/admin/CategoriesAdmin';
 import CutOptionsAdmin from './pages/admin/CutOptionsAdmin';
 import WhatsAppButton from './components/WhatsAppButton';
 import GoToTopButton from './components/GoToTopButton';
+import { Analytics } from "@vercel/analytics/react";
 
 function PublicLayout() {
   const { pathname, search } = useLocation();
@@ -75,6 +76,7 @@ export default function App() {
       </Routes>
       {isProducts && <GoToTopButton />}
       {!pathname.startsWith('/admin') && <WhatsAppButton />}
+      <Analytics />
     </div>
   );
 }
