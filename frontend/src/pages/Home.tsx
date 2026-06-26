@@ -7,6 +7,7 @@ import { productsApi } from '../api/products';
 import ProductCard from '../components/ProductCard';
 import Autoplay from 'embla-carousel-autoplay';
 import { Banknote, CreditCard, Landmark, Truck } from 'lucide-react';
+import SaleProducts from '../components/SaleProducts';
 import { formatARS, FREE_SHIPPING_THRESHOLD } from '../lib/utils';
 import {
   Carousel,
@@ -152,6 +153,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <SaleProducts />
 
       <section className="bg-black relative overflow-hidden border-y border-zinc-800">
         <div className="absolute inset-0 pointer-events-none">

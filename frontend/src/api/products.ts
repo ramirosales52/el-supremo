@@ -46,6 +46,16 @@ export const productsApi = {
     return { products: (data ?? []).map(mapProduct), count: count ?? 0 };
   },
 
+  getOnSale: async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, category:categoryId(*), products_cut_options(cutOption:cutOptionId(*))')
+      .eq('isOnSale', true)
+      .order('discountPercentage', { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map(mapProduct);
+  },
+
   search: async (query: string) => {
     return productsApi.getAll(undefined, query);
   },
