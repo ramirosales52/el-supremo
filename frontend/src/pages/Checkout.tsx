@@ -5,7 +5,7 @@ import { ordersApi } from '../api/orders';
 import type { PaymentMethod, DeliveryTimeSlot } from '../types';
 import {
   SHIPPING_COST, FREE_SHIPPING_THRESHOLD, TRANSFER_DISCOUNT_RATE, getEffectivePrice,
-  CUTOFF_HOUR, DELIVERY_SLOTS, getAvailableDeliveryDates, getAvailableSlots, formatDeliveryDate, toDateInputValue
+  CUTOFF_HOUR, DELIVERY_SLOTS, getAvailableDeliveryDates, getAvailableSlots, formatDeliveryDate, toDateInputValue, formatARS
 } from '../lib/utils';
 
 const paymentMethods: { value: PaymentMethod; label: string; description: string }[] = [
@@ -306,7 +306,7 @@ export default function Checkout() {
               disabled={submitting}
               className="cursor-pointer w-full py-3 font-semibold text-base bg-red-600 hover:bg-red-700 text-white tracking-wider disabled:opacity-50"
             >
-              {submitting ? 'Enviando pedido...' : `Confirmar pedido — $${total.toFixed(2)}`}
+              {submitting ? 'Enviando pedido...' : `Confirmar pedido — ${formatARS(total)}`}
             </button>
           </form>
 
@@ -326,7 +326,7 @@ export default function Checkout() {
                         </p>
                       </div>
                       <span className="text-gray-900 font-medium ml-2">
-                        ${(unitPrice * item.quantity).toFixed(2)}
+                        {formatARS(unitPrice * item.quantity)}
                       </span>
                     </div>
                   );
@@ -335,25 +335,25 @@ export default function Checkout() {
               <div className="border-t border-gray-200 mt-4 pt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-gray-500">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatARS(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Descuento transferencia (5%)</span>
-                    <span>-${discount.toFixed(2)}</span>
+                    <span>-{formatARS(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-500">
                   <span>Envío</span>
-                  <span>{shippingCost === 0 ? <span className="text-green-600 font-medium">Gratis</span> : `$${shippingCost.toFixed(2)}`}</span>
+                  <span>{shippingCost === 0 ? <span className="text-green-600 font-medium">Gratis</span> : formatARS(shippingCost)}</span>
                 </div>
                 {subtotal >= FREE_SHIPPING_THRESHOLD && (
-                  <p className="text-xs text-green-600">Envío gratis por pedido mayor a ${FREE_SHIPPING_THRESHOLD.toFixed(2)}</p>
+                  <p className="text-xs text-green-600">Envío gratis por pedido mayor a {formatARS(FREE_SHIPPING_THRESHOLD)}</p>
                 )}
               </div>
               <div className="border-t border-gray-200 mt-3 pt-3 flex justify-between font-bold text-gray-900">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatARS(total)}</span>
               </div>
             </div>
           </div>

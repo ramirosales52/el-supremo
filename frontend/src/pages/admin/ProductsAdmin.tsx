@@ -20,6 +20,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Upload, X } from 'lucide-react';
+import { formatARS } from '@/lib/utils';
 
 export default function ProductsAdmin() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -334,7 +335,7 @@ export default function ProductsAdmin() {
                   <Label>Precio final</Label>
                   <div className="flex h-10 items-center rounded-md border border-input bg-muted px-3 text-sm font-semibold text-green-700">
                     {editing?.basePrice && editing?.discountPercentage
-                      ? `$${(Number(editing.basePrice) * (1 - (editing.discountPercentage || 0) / 100)).toFixed(2)}`
+                      ? formatARS(Number(editing.basePrice) * (1 - (editing.discountPercentage || 0) / 100))
                       : '—'}
                   </div>
                 </div>
@@ -442,7 +443,7 @@ export default function ProductsAdmin() {
                 <TableCell className="text-right font-medium">
                   <div className="flex items-center justify-end gap-2">
                     <span className={p.isOnSale ? 'text-gray-400 line-through' : ''}>
-                      ${Number(p.basePrice).toFixed(2)}
+                      {formatARS(Number(p.basePrice))}
                     </span>
                     {p.isOnSale && p.discountPercentage && (
                       <span className="rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white">

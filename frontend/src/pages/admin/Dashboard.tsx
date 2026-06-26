@@ -15,6 +15,7 @@ import {
   ArrowRight,
   AlertCircle,
 } from 'lucide-react';
+import { formatARS } from '@/lib/utils';
 
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendientes',
@@ -112,7 +113,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <span className="text-3xl font-bold">
-              ${orders.reduce((sum, o) => sum + Number(o.total || 0), 0).toFixed(2)}
+              {formatARS(orders.reduce((sum, o) => sum + Number(o.total || 0), 0))}
             </span>
           </CardContent>
         </Card>

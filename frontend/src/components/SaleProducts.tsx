@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { productsApi } from '../api/products';
 import type { Product } from '../types';
 import { getProductImageUrl } from '../api/storage';
-import { getSalePrice } from '../lib/utils';
+import { getSalePrice, formatARS } from '../lib/utils';
 
 export default function SaleProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -116,11 +116,11 @@ function SaleCard({ product, index }: { product: Product; index: number }) {
 
         <div className="mt-3 flex flex-wrap items-baseline gap-2">
           <span className="text-sm text-zinc-400 line-through">
-            ${Number(product.basePrice).toFixed(2)}
+            {formatARS(Number(product.basePrice))}
           </span>
           {salePrice !== null && (
             <span className="text-2xl font-bold text-red-600">
-              ${salePrice.toFixed(2)}
+              {formatARS(salePrice)}
             </span>
           )}
           <span className="text-sm text-zinc-400">/ {product.unit}</span>

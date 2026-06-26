@@ -1,6 +1,16 @@
-import { createContext, useContext, useReducer, type ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
 import type { CartItem, Product, CutOption } from '../types';
 import { getEffectivePrice } from '../lib/utils';
+
+const STORAGE_KEY = 'elsupremo_cart';
+
+function loadCart(): CartItem[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return [];
+}
 
 interface CartState {
   items: CartItem[];
@@ -72,7 +82,11 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [state, dispatch] = useReducer(cartReducer, { items: loadCart() });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+  }, [state.items]);
 
   const addItem = (product: Product, cutOption: CutOption | null, quantity: number, notes: string, supremoListo?: boolean) => {
     dispatch({ type: 'ADD_ITEM', payload: { product, cutOption, quantity, notes, supremoListo } });

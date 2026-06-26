@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getProductImageUrl } from '../api/storage';
-import { getEffectivePrice, CUTOFF_HOUR } from '../lib/utils';
+import { getEffectivePrice, CUTOFF_HOUR, formatARS } from '../lib/utils';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart } = useCart();
@@ -84,10 +84,10 @@ export default function Cart() {
 
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm">
                         <span className="text-gray-500">
-                          Precio unitario: <span className="text-gray-900 font-medium">${unitPrice.toFixed(2)}</span>
+                          Precio unitario: <span className="text-gray-900 font-medium">{formatARS(unitPrice)}</span>
                         </span>
                         <span className="text-gray-500">
-                          Subtotal: <span className="text-gray-900 font-medium">${(unitPrice * item.quantity).toFixed(2)}</span>
+                          Subtotal: <span className="text-gray-900 font-medium">{formatARS(unitPrice * item.quantity)}</span>
                         </span>
                       </div>
 
@@ -122,7 +122,7 @@ export default function Cart() {
                           <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2.5 py-1">
                             {item.cutOption.name}
                             {Number(item.cutOption.priceModifier) > 0 && (
-                              <span className="text-red-500">(+${Number(item.cutOption.priceModifier).toFixed(2)})</span>
+                              <span className="text-red-500">(+{formatARS(Number(item.cutOption.priceModifier))})</span>
                             )}
                           </span>
                         )}
@@ -155,7 +155,7 @@ export default function Cart() {
                         <span className="text-gray-400"> x{item.quantity}</span>
                       </span>
                       <span className="text-gray-900 font-medium whitespace-nowrap">
-                        ${(unitPrice * item.quantity).toFixed(2)}
+                        {formatARS(unitPrice * item.quantity)}
                       </span>
                     </div>
                   );
@@ -165,7 +165,7 @@ export default function Cart() {
               <div className="border-t border-gray-200 mt-4 pt-4 space-y-2">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatARS(subtotal)}</span>
                 </div>
                 <p className="text-xs text-gray-400">
                   El costo de envío y descuentos se calculan al confirmar el pedido.

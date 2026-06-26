@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
 import { getProductImageUrl } from '../api/storage';
-import { getSalePrice } from '../lib/utils';
+import { getSalePrice, formatARS } from '../lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -49,12 +49,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             if (salePrice !== null) {
               return (
                 <>
-                  <span className="text-sm text-gray-400 line-through">${Number(product.basePrice).toFixed(2)}</span>
-                  <span className="text-xl font-bold text-red-600">${salePrice.toFixed(2)}</span>
+                  <span className="text-sm text-gray-400 line-through">{formatARS(Number(product.basePrice))}</span>
+                  <span className="text-xl font-bold text-red-600">{formatARS(salePrice)}</span>
                 </>
               );
             }
-            return <span className="text-xl font-bold text-gray-900">${Number(product.basePrice).toFixed(2)}</span>;
+            return <span className="text-xl font-bold text-gray-900">{formatARS(Number(product.basePrice))}</span>;
           })()}
           <span className="text-sm text-gray-400">/ {product.unit}</span>
         </div>

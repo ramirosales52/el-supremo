@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageCircle } from 'lucide-react';
+import { formatARS } from '../../lib/utils';
 
 function getWhatsAppUrl(order: Order): string {
   const cleanPhone = order.customerPhone.replace(/\D/g, '');
@@ -182,7 +183,7 @@ export default function OrdersAdmin() {
                   {order.customerAddress && <> · 📍 {order.customerAddress}</>}
                 </p>
                 <p className="text-xs text-muted-foreground/70">
-                  {order.items.length} producto{order.items.length !== 1 ? 's' : ''} · Total: ${order.total.toFixed(2)}
+                  {order.items.length} producto{order.items.length !== 1 ? 's' : ''} · Total: {formatARS(order.total)}
                 </p>
                 {order.paymentMethod && (
                   <div className="flex gap-2 mt-1 flex-wrap">
@@ -191,12 +192,12 @@ export default function OrdersAdmin() {
                     </Badge>
                     {order.discount > 0 && (
                       <Badge variant="secondary" className="text-[10px]">
-                        -${order.discount.toFixed(2)} desc.
+                        -{formatARS(order.discount)} desc.
                       </Badge>
                     )}
                     {order.shippingCost > 0 ? (
                       <Badge variant="ghost" className="text-[10px]">
-                        Envío ${order.shippingCost.toFixed(2)}
+                        Envío {formatARS(order.shippingCost)}
                       </Badge>
                     ) : (
                       <Badge variant="ghost" className="text-[10px] text-green-600">

@@ -6,7 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const SUPREMO_LISTO_PRICE = 500
 export const SHIPPING_COST = 3500
 export const FREE_SHIPPING_THRESHOLD = 50000
 export const TRANSFER_DISCOUNT_RATE = 0.05

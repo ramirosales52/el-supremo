@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, MessageCircle } from 'lucide-react';
 import { getProductImageUrl } from '@/api/storage';
+import { formatARS } from '@/lib/utils';
 
 function getWhatsAppUrl(order: Order): string {
   const cleanPhone = order.customerPhone.replace(/\D/g, '');
@@ -224,19 +225,19 @@ export default function OrderDetail() {
             {order.discount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span>Descuento</span>
-                <span className="font-medium">-${Number(order.discount).toFixed(2)}</span>
+                <span className="font-medium">-{formatARS(Number(order.discount))}</span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Envío</span>
               <span className={order.shippingCost > 0 ? 'font-medium' : 'font-medium text-green-600'}>
-                {order.shippingCost > 0 ? `$${Number(order.shippingCost).toFixed(2)}` : 'Gratis'}
+                {order.shippingCost > 0 ? formatARS(Number(order.shippingCost)) : 'Gratis'}
               </span>
             </div>
             <Separator />
             <div className="flex justify-between font-semibold">
               <span>Total</span>
-              <span>${Number(order.total).toFixed(2)}</span>
+              <span>{formatARS(Number(order.total))}</span>
             </div>
           </CardContent>
         </Card>
@@ -287,7 +288,7 @@ export default function OrderDetail() {
                       <span>· {item.cutOption.name}</span>
                     )}
                     <span>
-                      · ${effectivePrice(item).toFixed(2)}/{item.unit}
+                      · {formatARS(effectivePrice(item))}/{item.unit}
                     </span>
                   </div>
                   {item.notes && (
@@ -295,7 +296,7 @@ export default function OrderDetail() {
                   )}
                 </div>
                 <span className="shrink-0 font-medium text-gray-900">
-                  ${(effectivePrice(item) * Number(item.quantity)).toFixed(2)}
+                  {formatARS(effectivePrice(item) * Number(item.quantity))}
                 </span>
               </div>
             ))}
@@ -306,19 +307,19 @@ export default function OrderDetail() {
           {order.discount > 0 && (
             <div className="flex justify-between text-sm text-green-600 mb-2">
               <span>Descuento ({order.paymentMethod === 'transfer' ? '5% transferencia' : ''})</span>
-              <span>-${Number(order.discount).toFixed(2)}</span>
+              <span>-{formatARS(Number(order.discount))}</span>
             </div>
           )}
           <div className="flex justify-between text-sm text-gray-500 mb-1">
             <span>Envío</span>
-            <span>{order.shippingCost > 0 ? `$${Number(order.shippingCost).toFixed(2)}` : <span className="text-green-600">Gratis</span>}</span>
+            <span>{order.shippingCost > 0 ? formatARS(Number(order.shippingCost)) : <span className="text-green-600">Gratis</span>}</span>
           </div>
 
           <Separator className="my-3" />
 
           <div className="flex justify-between text-lg font-bold text-gray-900">
             <span>Total</span>
-            <span>${Number(order.total).toFixed(2)}</span>
+            <span>{formatARS(Number(order.total))}</span>
           </div>
         </CardContent>
       </Card>

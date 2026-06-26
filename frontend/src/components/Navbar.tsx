@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { categoriesApi } from '../api/categories';
+import { formatARS } from '../lib/utils';
 import type { Category } from '../types';
 import logo from '../assets/logo-blanco.png';
 
@@ -130,7 +131,7 @@ export default function Navbar() {
                 )}
               </div>
               <span className="text-base font-bold text-primary-400 tabular-nums">
-                ${subtotal.toFixed(2)}
+                {formatARS(subtotal)}
               </span>
             </Link>
           </div>
