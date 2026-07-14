@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Order } from './order.entity';
@@ -71,6 +71,9 @@ export class OrderService {
       const product = productMap.get(itemDto.productId);
       if (!product) {
         throw new NotFoundException(`Product #${itemDto.productId} not found`);
+      }
+      if (!product.isAvailable) {
+        throw new BadRequestException(`Product "${product.name}" is not available`);
       }
 
       let unitPrice = Number(product.basePrice);

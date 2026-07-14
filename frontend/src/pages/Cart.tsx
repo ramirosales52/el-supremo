@@ -4,7 +4,7 @@ import { getProductImageUrl } from '../api/storage';
 import { getEffectivePrice, CUTOFF_HOUR, formatARS } from '../lib/utils';
 
 export default function Cart() {
-  const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart, removedCount, clearRemovedNotice } = useCart();
 
   if (items.length === 0) {
     return (
@@ -24,6 +24,27 @@ export default function Cart() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {removedCount > 0 && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 p-4 flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <span className="text-amber-500 text-lg mt-0.5">⚠️</span>
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  Se {removedCount === 1 ? 'removió' : 'removieron'} {removedCount} {removedCount === 1 ? 'producto que ya no está disponible' : 'productos que ya no están disponibles'}.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={clearRemovedNotice}
+              className="text-amber-400 hover:text-amber-600 transition-colors p-1 cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
             Carrito <span className="text-lg text-gray-500 font-normal">({totalItems} {totalItems === 1 ? 'producto' : 'productos'})</span>

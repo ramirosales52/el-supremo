@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productsApi } from '../api/products';
+import { supabase } from '../utils/supabase';
 import { useCart } from '../context/CartContext';
 import { formatARS, QUANTITIES_KG, getEffectivePrice, getSalePrice } from '../lib/utils';
 import { getProductImageUrl } from '../api/storage';
@@ -19,6 +20,7 @@ export default function ProductDetail() {
   const [customQty, setCustomQty] = useState(false);
   const [notes, setNotes] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
+  const [addError, setAddError] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -45,8 +47,25 @@ export default function ProductDetail() {
 
   const unavailable = !!(product && !product.isAvailable);
 
-  const handleAdd = () => {
+  useEffect(() => {
+    setAddError('');
+  }, [selectedCut, qty, customQty]);
+
+  const handleAdd = async () => {
     if (!product || finalQty <= 0 || unavailable) return;
+    setAddError('');
+
+    const { data } = await supabase
+      .from('products')
+      .select('isAvailable')
+      .eq('id', product.id)
+      .single();
+
+    if (data && !data.isAvailable) {
+      setAddError('Este producto ya no está disponible');
+      return;
+    }
+
     addItem(product, selectedCut, finalQty, notes.trim(), true);
     navigate('/carrito');
   };
@@ -183,6 +202,9 @@ export default function ProductDetail() {
           >
             {unavailable ? 'NO DISPONIBLE' : 'Agregar al pedido'}
           </button>
+          {addError && (
+            <p className="mt-2 text-sm text-red-600 text-center">{addError}</p>
+          )}
           <p className="mt-3 text-center text-xs text-muted-foreground">Envío solo en Marcos Juárez</p>
         </aside>
       </div>
@@ -283,6 +305,9 @@ export default function ProductDetail() {
             </>
           )}
         </button>
+        {addError && (
+          <p className="mt-2 text-sm text-red-600 text-center bg-white px-3 py-2">{addError}</p>
+        )}
       </div>
     </div>
     </div>

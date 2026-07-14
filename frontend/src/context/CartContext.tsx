@@ -1,6 +1,7 @@
-import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from 'react';
 import type { CartItem, Product, CutOption } from '../types';
 import { getEffectivePrice } from '../lib/utils';
+import { supabase } from '../utils/supabase';
 
 const STORAGE_KEY = 'elsupremo_cart';
 
@@ -77,16 +78,49 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
+  removedCount: number;
+  clearRemovedNotice: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: loadCart() });
+  const [removedCount, setRemovedCount] = useState(0);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
   }, [state.items]);
+
+  useEffect(() => {
+    if (state.items.length === 0) return;
+
+    const productIds = [...new Set(state.items.map((item) => item.product.id))];
+    supabase
+      .from('products')
+      .select('id, isAvailable')
+      .in('id', productIds)
+      .then(({ data }) => {
+        if (!data) return;
+        const unavailableIds = new Set(
+          data.filter((p) => !p.isAvailable).map((p) => p.id)
+        );
+        if (unavailableIds.size === 0) return;
+
+        let count = 0;
+        for (const item of state.items) {
+          if (unavailableIds.has(item.product.id)) {
+            dispatch({
+              type: 'REMOVE_ITEM',
+              payload: { productId: item.product.id, cutOptionId: item.cutOption?.id ?? null },
+            });
+            count++;
+          }
+        }
+        setRemovedCount(count);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addItem = (product: Product, cutOption: CutOption | null, quantity: number, notes: string, supremoListo?: boolean) => {
     dispatch({ type: 'ADD_ITEM', payload: { product, cutOption, quantity, notes, supremoListo } });
@@ -102,6 +136,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => dispatch({ type: 'CLEAR' });
 
+  const clearRemovedNotice = () => setRemovedCount(0);
+
   const totalItems = state.items.length;
 
   const subtotal = state.items.reduce((sum, item) => {
@@ -110,7 +146,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items: state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal }}
+      value={{ items: state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal, removedCount, clearRemovedNotice }}
     >
       {children}
     </CartContext.Provider>
