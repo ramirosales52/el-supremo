@@ -8,6 +8,7 @@ import {
   Package,
   Tags,
   Scissors,
+  Layers,
   Menu,
   Store,
   LogOut,
@@ -26,6 +27,7 @@ const navItems = [
   { to: '/admin/productos', label: 'Productos', icon: Package },
   { to: '/admin/categorias', label: 'Categorías', icon: Tags },
   { to: '/admin/cortes', label: 'Opciones de Corte', icon: Scissors },
+  { to: '/admin/combos', label: 'Combos', icon: Layers },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

@@ -1,40 +1,48 @@
 import { supabase } from '../utils/supabase';
-import type { Order, OrderStatus, PaymentMethod, PaymentStatus, OrderItem, Product, CutOption, DeliveryTimeSlot } from '../types';
+import type { Order, OrderStatus, PaymentMethod, PaymentStatus, DeliveryTimeSlot, OrderItem, Product, CutOption, ComboSnapshot, ComboSelectionPayload } from '../types';
+import { mapSnapshot } from './combos';
 
-interface CreateOrderPayload {
+export interface ComboOrderInput {
+  comboId: number;
+  quantity: number;
+  options: ComboSelectionPayload;
+}
+
+export interface CreateCombosOrderPayload {
   customerName: string;
   customerPhone: string;
   customerAddress?: string;
   paymentMethod: PaymentMethod;
-  subtotal: number;
-  discount: number;
-  shippingCost: number;
-  total: number;
   notes?: string;
   idempotencyKey?: string;
   deliveryDate?: string;
   deliveryTimeSlot?: DeliveryTimeSlot;
-  items: {
+  products: {
     productId: number;
     quantity: number;
-    unit?: string;
-    unitPrice: number;
     cutOptionId?: number;
     notes?: string;
   }[];
+  combos: ComboOrderInput[];
 }
 
 function mapOrderItem(raw: any): OrderItem {
+  const isCombo = raw.itemType === 'combo';
+  const snapshot: ComboSnapshot | null = raw.comboSnapshot ? mapSnapshot(raw.comboSnapshot) : null;
   return {
     id: raw.id,
-    productId: raw.productId,
-    product: raw.product as Product,
-    cutOptionId: raw.cutOptionId,
-    cutOption: raw.cutOption as CutOption | null,
+    itemType: isCombo ? 'combo' : 'product',
+    productId: raw.productId ?? null,
+    product: isCombo ? null : (raw.product as Product) ?? null,
+    cutOptionId: raw.cutOptionId ?? null,
+    cutOption: isCombo ? null : (raw.cutOption as CutOption | null),
     quantity: raw.quantity,
     unit: raw.unit,
     unitPrice: raw.unitPrice,
     notes: raw.notes,
+    comboId: raw.comboId ?? null,
+    comboName: raw.comboName ?? snapshot?.comboName ?? null,
+    comboSnapshot: snapshot,
   };
 }
 
@@ -96,42 +104,22 @@ export const ordersApi = {
     return mapOrder(data);
   },
 
-  create: async (input: CreateOrderPayload) => {
-    const { items, ...orderFields } = input;
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert(orderFields)
-      .select()
-      .single();
-    if (orderError) {
-      if (orderError.code === '23505' && input.idempotencyKey) {
-        const { data: existing } = await supabase
-          .from('orders')
-          .select('id')
-          .eq('idempotencyKey', input.idempotencyKey)
-          .single();
-        if (existing) return ordersApi.getById(existing.id);
-      }
-      throw orderError;
-    }
-
-    if (items.length) {
-      const orderItems = items.map((item) => ({
-        orderId: order.id,
-        productId: item.productId,
-        cutOptionId: item.cutOptionId ?? null,
-        quantity: item.quantity,
-        unit: item.unit ?? 'kg',
-        unitPrice: item.unitPrice,
-        notes: item.notes ?? null,
-      }));
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-      if (itemsError) throw itemsError;
-    }
-
-    return ordersApi.getById(order.id);
+  createWithCombos: async (input: CreateCombosOrderPayload) => {
+    const { data, error } = await supabase.rpc('create_order_with_combos', {
+      p_customer_name: input.customerName,
+      p_customer_phone: input.customerPhone,
+      p_customer_address: input.customerAddress ?? null,
+      p_payment_method: input.paymentMethod,
+      p_notes: input.notes ?? null,
+      p_idempotency_key: input.idempotencyKey ?? null,
+      p_delivery_date: input.deliveryDate ?? null,
+      p_delivery_time_slot: input.deliveryTimeSlot ?? null,
+      p_items: input.products,
+      p_combos: input.combos,
+    });
+    if (error) throw error;
+    const orderId: number = typeof data === 'object' && data && 'id' in data ? Number((data as any).id) : Number(data);
+    return ordersApi.getById(orderId);
   },
 
   updateStatus: async (id: number, status: OrderStatus) => {

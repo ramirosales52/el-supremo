@@ -71,6 +71,7 @@ export default function Navbar() {
 
   const isActive = (path: string, catId?: number) => {
     if (catId) return location.pathname === '/productos' && activeCategoryId === String(catId);
+    if (path === '/combos') return location.pathname.startsWith('/combos');
     return location.pathname === path;
   };
 
@@ -96,9 +97,12 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-0 text-white uppercase text-sm font-medium">
+            <span className="flex items-center gap-0">
+              {navLink('/combos', 'Combos')}
+            </span>
             {categories.map((cat, i) => (
               <span key={cat.id} className="flex items-center gap-0">
-                {i > 0 && <span className="text-gray-600 mx-2 select-none">|</span>}
+                <span className="text-gray-600 mx-2 select-none">|</span>
                 {navLink(`/productos?categoryId=${cat.id}`, cat.name, cat.id)}
               </span>
             ))}

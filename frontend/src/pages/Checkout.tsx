@@ -57,12 +57,11 @@ export default function Checkout() {
 
   const discountedSubtotal = subtotal - discount;
 
-  const shippingCost = useMemo(() => {
-    if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
-    return SHIPPING_COST;
-  }, [subtotal]);
+  const hasFreeShippingCombo = items.some((item) => item.kind === 'combo' && item.snapshot.freeShipping);
+  const freeShippingReason = hasFreeShippingCombo || subtotal >= FREE_SHIPPING_THRESHOLD;
+  const displayedShipping = freeShippingReason ? 0 : SHIPPING_COST;
 
-  const total = discountedSubtotal + shippingCost;
+  const total = discountedSubtotal + displayedShipping;
 
   if (items.length === 0 && !success) {
     return (
@@ -110,30 +109,30 @@ export default function Checkout() {
     setError('');
 
     try {
-      await ordersApi.create({
+      await ordersApi.createWithCombos({
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
         customerAddress: customerAddress.trim() || undefined,
         paymentMethod,
-        subtotal,
-        discount,
-        shippingCost,
-        total,
+        notes: notes.trim() || undefined,
         idempotencyKey,
         deliveryDate: deliveryDate || undefined,
         deliveryTimeSlot,
-        notes: notes.trim() || undefined,
-        items: items.map((item) => {
-          const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
-          return {
+        products: items
+          .filter((item) => item.kind === 'product')
+          .map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,
-            unit: item.product.unit,
-            unitPrice,
             cutOptionId: item.cutOption?.id,
             notes: item.notes || undefined,
-          };
-        }),
+          })),
+        combos: items
+          .filter((item) => item.kind === 'combo')
+          .map((item) => ({
+            comboId: item.comboId,
+            quantity: item.quantity,
+            options: item.options,
+          })),
       });
       setSuccess(true);
       clearCart();
@@ -315,6 +314,20 @@ export default function Checkout() {
               <h3 className="font-semibold text-gray-900 mb-4">Resumen del pedido</h3>
               <div className="space-y-3">
                 {items.map((item) => {
+                  if (item.kind === 'combo') {
+                    const price = Number(item.snapshot.price);
+                    return (
+                      <div key={item.key} className="flex justify-between text-sm">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{item.snapshot.comboName}</p>
+                          <p className="text-gray-500 text-xs">
+                            Combo · {item.quantity} unidad{item.quantity === 1 ? '' : 'es'}
+                          </p>
+                        </div>
+                        <span className="text-gray-900 font-medium ml-2">{formatARS(price * item.quantity)}</span>
+                      </div>
+                    );
+                  }
                   const unitPrice = getEffectivePrice(item.product, item.cutOption?.priceModifier ?? 0);
                   return (
                     <div key={`${item.product.id}-${item.cutOption?.id}`} className="flex justify-between text-sm">
@@ -345,11 +358,16 @@ export default function Checkout() {
                 )}
                 <div className="flex justify-between text-gray-500">
                   <span>Envío</span>
-                  <span>{shippingCost === 0 ? <span className="text-green-600 font-medium">Gratis</span> : formatARS(shippingCost)}</span>
+                  <span>{displayedShipping === 0 ? <span className="text-green-600 font-medium">Gratis</span> : formatARS(displayedShipping)}</span>
                 </div>
-                {subtotal >= FREE_SHIPPING_THRESHOLD && (
-                  <p className="text-xs text-green-600">Envío gratis por pedido mayor a {formatARS(FREE_SHIPPING_THRESHOLD)}</p>
+                {freeShippingReason && (
+                  <p className="text-xs text-green-600">
+                    {hasFreeShippingCombo
+                      ? 'Envío gratis por incluir un combo'
+                      : `Envío gratis por pedido mayor a ${formatARS(FREE_SHIPPING_THRESHOLD)}`}
+                  </p>
                 )}
+                <p className="text-[11px] text-gray-400">El total final lo confirma el servidor al recibir el pedido.</p>
               </div>
               <div className="border-t border-gray-200 mt-3 pt-3 flex justify-between font-bold text-gray-900">
                 <span>Total</span>

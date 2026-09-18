@@ -7,6 +7,8 @@ import Cart from './pages/Cart';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import Combos from './pages/Combos';
+import ComboDetail from './pages/ComboDetail';
 import Checkout from './pages/Checkout';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -16,6 +18,8 @@ import OrderDetail from './pages/admin/OrderDetail';
 import ProductsAdmin from './pages/admin/ProductsAdmin';
 import CategoriesAdmin from './pages/admin/CategoriesAdmin';
 import CutOptionsAdmin from './pages/admin/CutOptionsAdmin';
+import CombosAdmin from './pages/admin/CombosAdmin';
+import ComboEditor from './pages/admin/ComboEditor';
 import WhatsAppButton from './components/WhatsAppButton';
 import GoToTopButton from './components/GoToTopButton';
 import { Analytics } from "@vercel/analytics/react";
@@ -53,6 +57,8 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="productos" element={<Products />} />
           <Route path="producto/:id" element={<ProductDetail />} />
+          <Route path="combos" element={<Combos />} />
+          <Route path="combos/:slug" element={<ComboDetail />} />
           <Route path="carrito" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -70,6 +76,8 @@ export default function App() {
           <Route path="pedidos" element={<OrdersAdmin />} />
           <Route path="pedidos/:id" element={<OrderDetail />} />
           <Route path="productos" element={<ProductsAdmin />} />
+          <Route path="combos" element={<CombosAdmin />} />
+          <Route path="combos/:id" element={<ComboEditor />} />
           <Route path="categorias" element={<CategoriesAdmin />} />
           <Route path="cortes" element={<CutOptionsAdmin />} />
         </Route>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { categoriesApi } from '../api/categories';
-import type { Category, Product } from '../types';
+import { combosApi } from '../api/combos';
+import type { Category, Product, Combo } from '../types';
 import banner from '../assets/banner.png';
 import { productsApi } from '../api/products';
 import ProductCard from '../components/ProductCard';
+import ComboCard from '../components/ComboCard';
 import Autoplay from 'embla-carousel-autoplay';
 import { Banknote, CreditCard, Landmark, Truck } from 'lucide-react';
 import SaleProducts from '../components/SaleProducts';
@@ -45,6 +47,15 @@ export default function Home() {
       .finally(() => setFeaturedLoading(false));
   }, []);
 
+  const [featuredCombos, setFeaturedCombos] = useState<Combo[]>([]);
+  const [combosLoading, setCombosLoading] = useState(true);
+
+  useEffect(() => {
+    combosApi.listFeatured()
+      .then(setFeaturedCombos)
+      .finally(() => setCombosLoading(false));
+  }, []);
+
   return (
     <div className="bg-black">
       <section className="relative h-[70vh] min-h-[500px] flex items-center overflow-hidden">
@@ -73,6 +84,41 @@ export default function Home() {
             </svg>
           </Link>
         </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-12">
+          <div>
+            <p className="text-red-500 uppercase tracking-[0.2em] text-sm font-semibold">COMBOS</p>
+            <h2 className="text-4xl md:text-5xl text-white uppercase mt-3 tracking-[0.05em]" style={{ fontFamily: '"Anton", sans-serif', fontWeight: 400 }}>
+              ARMADOS PARA VOS
+            </h2>
+            <p className="text-zinc-400 mt-3 text-lg">Combos completos con envío gratis</p>
+          </div>
+          <Link
+            to="/combos"
+            className="shrink-0 inline-flex items-center gap-2 border border-zinc-700 text-white text-sm font-semibold uppercase tracking-wider px-5 py-2.5 hover:border-red-600 hover:text-red-500 transition-colors"
+          >
+            Ver todos
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+
+        {combosLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-80 bg-zinc-900 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredCombos.map((combo) => (
+              <ComboCard key={combo.id} combo={combo} />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

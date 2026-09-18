@@ -13,10 +13,14 @@ import { formatARS } from '../../lib/utils';
 function getWhatsAppUrl(order: Order): string {
   const cleanPhone = order.customerPhone.replace(/\D/g, '');
   const productList = order.items
-    .map(
-      (item) =>
-        `- ${item.quantity} ${item.unit} ${item.product.name}${item.cutOption ? ` (${item.cutOption.name})` : ''}`,
-    )
+    .map((item) => {
+      const title =
+        item.itemType === 'combo'
+          ? `Combo ${item.comboName ?? item.comboSnapshot?.comboName ?? ''}`.replace(/\s+/g, ' ').trim()
+          : `${item.product?.name ?? 'Producto'}${item.cutOption ? ` (${item.cutOption.name})` : ''}`;
+      const unit = item.itemType === 'combo' ? 'combo' : item.unit;
+      return `- ${item.quantity} ${unit} ${title}`;
+    })
     .join('\n');
   let deliveryText = '';
   if (order.deliveryDate) {

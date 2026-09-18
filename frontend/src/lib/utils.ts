@@ -98,3 +98,8 @@ export function formatARS(amount: number): string {
     maximumFractionDigits: 0,
   }).format(amount)
 }
+
+export function formatKg(totalKg: number): string {
+  const v = Number(totalKg) || 0;
+  return `${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(v)} kg`;
+}

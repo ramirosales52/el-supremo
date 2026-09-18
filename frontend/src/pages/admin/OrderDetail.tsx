@@ -14,10 +14,14 @@ import { formatARS } from '@/lib/utils';
 function getWhatsAppUrl(order: Order): string {
   const cleanPhone = order.customerPhone.replace(/\D/g, '');
   const productList = order.items
-    .map(
-      (item) =>
-        `- ${item.quantity} ${item.unit} ${item.product.name}${item.cutOption ? ` (${item.cutOption.name})` : ''}`,
-    )
+    .map((item) => {
+      const title =
+        item.itemType === 'combo'
+          ? `Combo ${item.comboName ?? item.comboSnapshot?.comboName ?? ''}`.replace(/\s+/g, ' ').trim()
+          : `${item.product?.name ?? 'Producto'}${item.cutOption ? ` (${item.cutOption.name})` : ''}`;
+      const unit = item.itemType === 'combo' ? 'combo' : item.unit;
+      return `- ${item.quantity} ${unit} ${title}`;
+    })
     .join('\n');
   let deliveryText = '';
   if (order.deliveryDate) {
@@ -33,7 +37,8 @@ function getWhatsAppUrl(order: Order): string {
 }
 
 function effectivePrice(item: Order['items'][0]) {
-  return item.unitPrice || Number(item.product.basePrice) + Number(item.cutOption?.priceModifier ?? 0);
+  if (item.itemType === 'combo') return Number(item.comboSnapshot?.price ?? 0);
+  return Number(item.unitPrice) || Number(item.product?.basePrice ?? 0) + Number(item.cutOption?.priceModifier ?? 0);
 }
 
 const paymentLabels: Record<string, string> = {
@@ -260,46 +265,88 @@ export default function OrderDetail() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {order.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 rounded-lg bg-muted/50 p-3"
-              >
-                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
-                  {item.product.images?.[0] ? (
-                    <img
-                      src={getProductImageUrl(item.product.images[0])}
-                      alt={item.product.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xl">
-                      🥩
+            {order.items.map((item) =>
+              item.itemType === 'combo' ? (
+                <div key={item.id} className="rounded-lg bg-muted/50 p-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block shrink-0 rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase">
+                          Combo
+                        </span>
+                        <p className="font-medium text-gray-900">
+                          {item.comboName ?? item.comboSnapshot?.comboName ?? 'Combo'}
+                        </p>
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {item.quantity} combo{item.quantity > 1 ? 's' : ''} · {formatARS(Number(item.comboSnapshot?.price ?? 0))}/unidad
+                      </p>
+                      <div className="mt-2 space-y-1.5">
+                        {item.comboSnapshot?.components.map((comp) => (
+                          <div key={comp.componentId}>
+                            <p className="text-xs font-medium text-gray-700">
+                              {comp.dayLabel && <span className="text-red-600 mr-1">{comp.dayLabel}:</span>}
+                              {comp.name}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {comp.productName}
+                              {comp.selections.length > 0 && (
+                                <span className="text-muted-foreground/70">
+                                  {' — '}
+                                  {comp.selections.map((s) => s.optionName).join(' · ')}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">{item.product.name}</p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                    <span>
-                      {item.quantity} {item.unit}
-                    </span>
-                    {item.cutOption && (
-                      <span>· {item.cutOption.name}</span>
-                    )}
-                    <span>
-                      · {formatARS(effectivePrice(item))}/{item.unit}
+                    <span className="shrink-0 font-medium text-gray-900">
+                      {formatARS(effectivePrice(item) * Number(item.quantity))}
                     </span>
                   </div>
-                  {item.notes && (
-                    <p className="mt-0.5 text-xs text-muted-foreground/60">Nota: {item.notes}</p>
-                  )}
                 </div>
-                <span className="shrink-0 font-medium text-gray-900">
-                  {formatARS(effectivePrice(item) * Number(item.quantity))}
-                </span>
-              </div>
-            ))}
+              ) : (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 rounded-lg bg-muted/50 p-3"
+                >
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                    {item.product?.images?.[0] ? (
+                      <img
+                        src={getProductImageUrl(item.product.images[0])}
+                        alt={item.product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xl">
+                        🥩
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900">{item.product?.name ?? 'Producto'}</p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                      <span>
+                        {item.quantity} {item.unit}
+                      </span>
+                      {item.cutOption && (
+                        <span>· {item.cutOption.name}</span>
+                      )}
+                      <span>
+                        · {formatARS(effectivePrice(item))}/{item.unit}
+                      </span>
+                    </div>
+                    {item.notes && (
+                      <p className="mt-0.5 text-xs text-muted-foreground/60">Nota: {item.notes}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 font-medium text-gray-900">
+                    {formatARS(effectivePrice(item) * Number(item.quantity))}
+                  </span>
+                </div>
+              )
+            )}
           </div>
 
           <Separator className="my-4" />
