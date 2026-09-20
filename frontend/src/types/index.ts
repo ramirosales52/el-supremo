@@ -74,8 +74,6 @@ export interface Combo {
   isFeatured: boolean;
   sortOrder: number;
   freeShipping: boolean;
-  variantGroup?: string | null;
-  variantLabel?: string | null;
   components: ComboComponent[];
 }
 

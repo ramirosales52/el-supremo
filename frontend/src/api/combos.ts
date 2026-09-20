@@ -60,8 +60,6 @@ export function mapCombo(raw: any): Combo {
     isFeatured: raw.isFeatured,
     sortOrder: raw.sortOrder,
     freeShipping: raw.freeShipping,
-    variantGroup: raw.variantGroup ?? null,
-    variantLabel: raw.variantLabel ?? null,
     components: (raw.components ?? []).map(mapComponent),
   };
 }

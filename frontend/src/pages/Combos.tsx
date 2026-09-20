@@ -22,15 +22,15 @@ export default function Combos() {
   return (
     <div className="min-h-screen bg-white">
       <section className="bg-black border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
           <p className="text-red-500 uppercase tracking-[0.2em] text-sm font-semibold">COMBOS</p>
           <h1
-            className="text-5xl md:text-6xl text-white uppercase mt-3 leading-[1.05] tracking-[0.02em]"
+            className="text-5xl md:text-6xl text-white uppercase mt-2 leading-[0.95] tracking-[0.02em]"
             style={{ fontFamily: '"Anton", sans-serif', fontWeight: 400 }}
           >
-            LISTO PARA<br />LLEVAR
+            LISTO PARA LLEVAR
           </h1>
-          <p className="text-zinc-400 mt-4 text-lg max-w-xl">
+          <p className="text-zinc-400 mt-3 text-lg max-w-xl">
             Combos armados con los mejores cortes. Elegís, personalizás y te llega con envío gratis.
           </p>
         </div>

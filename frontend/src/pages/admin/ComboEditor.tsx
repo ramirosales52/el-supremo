@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { combosApi, parseComboError } from '../../api/combos';
 import { productsApi } from '../../api/products';
 import { cutOptionsApi } from '../../api/cutOptions';
+import { uploadProductImage, getProductImageUrl } from '../../api/storage';
 import type { Combo, Product, CutOption } from '../../types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,7 +15,7 @@ import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft, Plus, Trash2, ArrowDownToLine } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, ArrowDownToLine, Upload, X } from 'lucide-react';
 
 interface OptState {
   uid: number;
@@ -57,8 +58,6 @@ interface FormState {
   isFeatured: boolean;
   sortOrder: number;
   freeShipping: boolean;
-  variantGroup: string;
-  variantLabel: string;
   components: CompState[];
 }
 
@@ -83,8 +82,6 @@ function blankForm(): FormState {
     isFeatured: false,
     sortOrder: 0,
     freeShipping: true,
-    variantGroup: '',
-    variantLabel: '',
     components: [],
   };
 }
@@ -103,8 +100,6 @@ function buildPayload(form: FormState): any {
     isFeatured: form.isFeatured,
     sortOrder: form.sortOrder,
     freeShipping: form.freeShipping,
-    variantGroup: form.variantGroup || null,
-    variantLabel: form.variantLabel || null,
     components: form.components.map((comp, ci) => {
       const groups = comp.groups.map((grp, gi) => {
         k += 1;
@@ -155,6 +150,8 @@ export default function ComboEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const uidRef = useRef(1);
   const nextUid = () => uidRef.current++;
 
@@ -171,8 +168,6 @@ export default function ComboEditor() {
       isFeatured: combo.isFeatured,
       sortOrder: combo.sortOrder,
       freeShipping: combo.freeShipping,
-      variantGroup: combo.variantGroup ?? '',
-      variantLabel: combo.variantLabel ?? '',
       components: combo.components.map((c) => ({
         uid: nextUid(),
         id: c.id,
@@ -228,7 +223,10 @@ export default function ComboEditor() {
         }
         const combos = await combosApi.list();
         const combo = combos.find((c) => c.id === Number(id));
-        if (combo && !cancelled) setForm(fromCombo(combo));
+        if (combo && !cancelled) {
+          setForm(fromCombo(combo));
+          setImagePreview(combo.image ? getProductImageUrl(combo.image) : null);
+        }
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Error al cargar'))
       .finally(() => {
@@ -248,6 +246,20 @@ export default function ComboEditor() {
       name,
       slug: f.slug === '' || f.slug === slugify(f.name) ? slugify(name) : f.slug,
     }));
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    set('image', '');
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    set('image', '');
   };
 
   // ---- componentes ----
@@ -355,7 +367,12 @@ export default function ComboEditor() {
     }
     setSaving(true);
     try {
-      await combosApi.save(buildPayload(form));
+      const payload = buildPayload(form);
+      if (imageFile) {
+        const tempId = form.id ?? Date.now();
+        payload.image = await uploadProductImage(imageFile, tempId, 0);
+      }
+      await combosApi.save(payload);
       navigate('/admin/combos');
     } catch (err) {
       setError(parseComboError(err).message);
@@ -421,21 +438,26 @@ export default function ComboEditor() {
             <Label>Peso total (kg)</Label>
             <Input type="number" step="0.1" value={form.totalKg} onChange={(e) => set('totalKg', Number(e.target.value))} />
           </div>
-          <div>
-            <Label>Grupo de variante</Label>
-            <Input value={form.variantGroup} onChange={(e) => set('variantGroup', e.target.value)} placeholder="Parrilla Suprema" />
-          </div>
-          <div>
-            <Label>Etiqueta de variante</Label>
-            <Input value={form.variantLabel} onChange={(e) => set('variantLabel', e.target.value)} placeholder="4 KG" />
-          </div>
-          <div>
-            <Label>Imagen (ruta ID)</Label>
-            <Input value={form.image} onChange={(e) => set('image', e.target.value)} placeholder="combos/vivo-solo.jpg" />
-          </div>
-          <div>
-            <Label>Orden</Label>
-            <Input type="number" value={form.sortOrder} onChange={(e) => set('sortOrder', Number(e.target.value))} />
+          <div className="sm:col-span-2">
+            <Label>Imagen</Label>
+            {imagePreview ? (
+              <div className="relative mt-1 inline-block w-full">
+                <img src={imagePreview} alt="Preview" className="h-40 w-full rounded-lg border object-cover" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="mt-1 flex h-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-input bg-background px-2 py-5 text-xs text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground/70">
+                <Upload className="h-4 w-4" />
+                <span>Subir imagen</span>
+                <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+              </label>
+            )}
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 sm:col-span-2">
             <label className="flex items-center gap-2 text-sm">

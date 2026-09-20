@@ -58,7 +58,7 @@ export default function Home() {
 
   return (
     <div className="bg-black">
-      <section className="relative h-[70vh] min-h-[500px] flex items-center overflow-hidden">
+      <section className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img src={banner} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black" />

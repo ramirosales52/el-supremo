@@ -26,6 +26,7 @@ export default function ComboDetail() {
 
   const [combo, setCombo] = useState<Combo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [selections, setSelections] = useState<Sels>({});
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -36,6 +37,7 @@ export default function ComboDetail() {
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
+    setLoadError('');
     setSelections({});
     setQuantity(1);
     combosApi
@@ -44,6 +46,7 @@ export default function ComboDetail() {
         setCombo(c);
         if (c) document.title = `${c.name} · El Supremo`;
       })
+      .catch((err) => setLoadError(err instanceof Error ? err.message : 'Error al cargar el combo'))
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -116,6 +119,7 @@ export default function ComboDetail() {
           <h1 className="text-4xl uppercase" style={{ fontFamily: '"Anton", sans-serif', fontWeight: 400 }}>
             Combo no encontrado
           </h1>
+          {loadError && <p className="mt-3 text-sm text-red-600">{loadError}</p>}
           <Link to="/combos" className="mt-4 inline-block font-semibold text-red-600 underline">
             <ChevronLeft className="inline h-4 w-4" /> Volver a combos
           </Link>
@@ -155,11 +159,6 @@ export default function ComboDetail() {
             >
               {combo.name}
             </h1>
-            {combo.variantLabel && (
-              <span className="rounded bg-zinc-900 px-2 py-1 text-xs font-bold text-white tracking-widest mb-2">
-                {combo.variantLabel}
-              </span>
-            )}
           </div>
           <p className="mt-2 text-zinc-500 text-lg">{combo.description}</p>
           <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">

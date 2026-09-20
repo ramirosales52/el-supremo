@@ -37,11 +37,6 @@ export default function ComboCard({ combo }: ComboCardProps) {
             ENVÍO GRATIS
           </span>
         )}
-        {combo.variantLabel && (
-          <span className="absolute bottom-2 right-2 rounded bg-white/10 px-2 py-0.5 text-[10px] font-bold text-white tracking-widest">
-            {combo.variantLabel}
-          </span>
-        )}
       </Link>
 
       <div className="p-4 flex-1 flex flex-col gap-2">
