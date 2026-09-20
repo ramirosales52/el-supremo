@@ -50,7 +50,6 @@ interface FormState {
   name: string;
   slug: string;
   description: string;
-  tagline: string;
   price: number;
   totalKg: number;
   image: string;
@@ -77,7 +76,6 @@ function blankForm(): FormState {
     name: '',
     slug: '',
     description: '',
-    tagline: '',
     price: 0,
     totalKg: 0,
     image: '',
@@ -98,7 +96,6 @@ function buildPayload(form: FormState): any {
     name: form.name,
     slug: form.slug || slugify(form.name),
     description: form.description,
-    tagline: form.tagline,
     price: form.price,
     totalKg: form.totalKg,
     image: form.image || null,
@@ -167,7 +164,6 @@ export default function ComboEditor() {
       name: combo.name,
       slug: combo.slug,
       description: combo.description,
-      tagline: combo.tagline,
       price: Number(combo.price),
       totalKg: Number(combo.totalKg),
       image: combo.image ?? '',
@@ -409,17 +405,9 @@ export default function ComboEditor() {
           <CardTitle>Datos del combo</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-1">
+          <div className="sm:col-span-2">
             <Label>Nombre *</Label>
             <Input value={form.name} onChange={(e) => handleNameChange(e.target.value)} placeholder="Vivo Solo" />
-          </div>
-          <div>
-            <Label>Slug</Label>
-            <Input value={form.slug} onChange={(e) => set('slug', e.target.value)} placeholder="vivo-solo" />
-          </div>
-          <div className="sm:col-span-2">
-            <Label>Tagline</Label>
-            <Input value={form.tagline} onChange={(e) => set('tagline', e.target.value)} placeholder="Ideal para una persona" />
           </div>
           <div className="sm:col-span-2">
             <Label>Descripción</Label>
@@ -470,7 +458,7 @@ export default function ComboEditor() {
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div>
             <CardTitle>Componentes</CardTitle>
-            <CardDescription>Pasos del configurador (carne, fiambres, acompañamientos…) o piezas fijas con producto.</CardDescription>
+            <CardDescription>Cada paso le pide al cliente elegir algo (ej: corte, fiambres…) o incluye un producto fijo.</CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={addComponent}>
             <Plus className="h-4 w-4 mr-1" /> Agregar componente
@@ -485,28 +473,30 @@ export default function ComboEditor() {
               <div className="grid gap-3 sm:grid-cols-6">
                 <div className="sm:col-span-2">
                   <Label>Nombre del paso</Label>
-                  <Input value={comp.name} onChange={(e) => updateComponent(comp.uid, { name: e.target.value })} placeholder="Elegí tu corte" />
+                  <Input value={comp.name} onChange={(e) => updateComponent(comp.uid, { name: e.target.value })} placeholder="Qué le pide al cliente (ej: Elegí tu corte)" />
                 </div>
                 <div>
                   <Label>Cantidad</Label>
-                  <Input type="number" value={comp.quantity} onChange={(e) => updateComponent(comp.uid, { quantity: Number(e.target.value) })} />
+                  <Input type="number" value={comp.quantity} onChange={(e) => updateComponent(comp.uid, { quantity: Number(e.target.value) })} placeholder="0.5" />
                 </div>
                 <div>
                   <Label>Unidad</Label>
                   <Select value={comp.unit} onValueChange={(v) => updateComponent(comp.uid, { unit: v ?? comp.unit })}>
-                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full">
+                      <SelectValue>{comp.unit === 'kg' ? 'Kilogramos (kg)' : comp.unit === 'unidad' ? 'Unidades' : 'Gramos (g)'}</SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value="g">g</SelectItem>
-                        <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="unidad">unidad</SelectItem>
+                        <SelectItem value="g">Gramos (g)</SelectItem>
+                        <SelectItem value="kg">Kilogramos (kg)</SelectItem>
+                        <SelectItem value="unidad">Unidades</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label>Etiqueta de día</Label>
-                  <Input value={comp.dayLabel} onChange={(e) => updateComponent(comp.uid, { dayLabel: e.target.value })} placeholder="Lunes" />
+                  <Label>Día de la semana (opcional)</Label>
+                  <Input value={comp.dayLabel} onChange={(e) => updateComponent(comp.uid, { dayLabel: e.target.value })} placeholder="ej: Lunes" />
                 </div>
                 <div className="flex items-end justify-end">
                   <Button variant="ghost" size="icon-sm" className="text-destructive" onClick={() => removeComponent(comp.uid)}>
@@ -517,11 +507,17 @@ export default function ComboEditor() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <Label>Producto fijo (componente sin elección)</Label>
+                  <Label>Producto incluido (paso sin opciones)</Label>
                   <Select value={String(comp.fixedProductId === '' ? 'all' : comp.fixedProductId)} onValueChange={(v) => updateComponent(comp.uid, { fixedProductId: v === 'all' ? '' : Number(v) })}>
-                    <SelectTrigger className="w-full"><SelectValue placeholder="Sin producto fijo" /></SelectTrigger>
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {comp.fixedProductId === ''
+                          ? '— Sin producto incluido —'
+                          : (products.find((p) => p.id === comp.fixedProductId)?.name ?? String(comp.fixedProductId))}
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">— Sin producto fijo —</SelectItem>
+                      <SelectItem value="all">— Sin producto incluido —</SelectItem>
                       {products.map((p) => (
                         <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
                       ))}
@@ -530,7 +526,7 @@ export default function ComboEditor() {
                 </div>
                 <div className="flex items-end justify-end">
                   <Button variant="outline" size="sm" onClick={() => addGroup(comp.uid)}>
-                    <Plus className="h-4 w-4 mr-1" /> Agregar grupo de selección
+                    <Plus className="h-4 w-4 mr-1" /> Agregar grupo de opciones
                   </Button>
                 </div>
               </div>
@@ -543,38 +539,49 @@ export default function ComboEditor() {
                     <div className="grid gap-3 sm:grid-cols-12">
                       <div className="sm:col-span-3">
                         <Label>Nombre del grupo</Label>
-                        <Input value={grp.name} onChange={(e) => updateGroup(comp.uid, grp.uid, { name: e.target.value })} placeholder="Seleccioná la preparación" />
+                        <Input value={grp.name} onChange={(e) => updateGroup(comp.uid, grp.uid, { name: e.target.value })} placeholder="ej: Seleccioná la preparación" />
                       </div>
                       <div className="sm:col-span-3">
-                        <Label>Tipo</Label>
+                        <Label>¿Qué es?</Label>
                         <Select value={grp.kind} onValueChange={(v) => updateGroup(comp.uid, grp.uid, { kind: v as any })}>
-                          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="w-full">
+                            <SelectValue>{isPrep ? 'Preparación' : 'Elección'}</SelectValue>
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="choice">Elección</SelectItem>
-                              <SelectItem value="preparation">Preparación</SelectItem>
+                              <SelectItem value="choice">Elección (el cliente elige una opción)</SelectItem>
+                              <SelectItem value="preparation">Preparación (afina el corte elegido)</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="sm:col-span-3">
-                        <Label>Anidado bajo opción</Label>
+                        <Label>¿Cuándo aparece?</Label>
                         <Select
                           value={String(grp.parentOptionUid === '' ? 'all' : grp.parentOptionUid)}
                           onValueChange={(v) => updateGroup(comp.uid, grp.uid, { parentOptionUid: v === 'all' ? '' : Number(v) })}
                         >
-                          <SelectTrigger className="w-full"><SelectValue placeholder="Grupo raíz" /></SelectTrigger>
+                          <SelectTrigger className="w-full">
+                            <SelectValue>
+                              {grp.parentOptionUid === ''
+                                ? '— Aparece siempre (raíz) —'
+                                : (() => {
+                                    const po = priorOpts.find((o) => o.uid === grp.parentOptionUid);
+                                    return po ? `${grpNameFor(comp, po)} → ${po.name || 'sin nombre'}` : '';
+                                  })()}
+                            </SelectValue>
+                          </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">— Raíz —</SelectItem>
+                            <SelectItem value="all">— Aparece siempre (raíz) —</SelectItem>
                             {priorOpts.map((o) => (
                               <SelectItem key={o.uid} value={String(o.uid)}>{grpNameFor(comp, o)} → {o.name || 'sin nombre'}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="sm:col-span-2 flex items-end justify-end">
+                      <div className="sm:col-span-3 flex items-end justify-end">
                         <Button variant="ghost" size="sm" className="text-destructive" onClick={() => removeGroup(comp.uid, grp.uid)}>
-                          <Trash2 className="h-4 w-4 mr-1" /> Grupo
+                          <Trash2 className="h-4 w-4 mr-1" /> Quitar grupo
                         </Button>
                       </div>
                     </div>
@@ -583,7 +590,10 @@ export default function ComboEditor() {
                       {grp.options.length === 0 && (
                         <p className="text-xs text-muted-foreground">Sin opciones. {isPrep ? 'Las preparaciones modifican el corte elegido.' : 'Agregá las opciones de este grupo.'}</p>
                       )}
-                      {grp.options.map((opt) => (
+                      {grp.options.map((opt) => {
+                          const optProduct = products.find((p) => p.id === opt.productId);
+                          const optCut = cutOptionsForProduct(opt.productId).find((c) => c.id === opt.cutOptionId);
+                          return (
                         <div key={opt.uid} className="grid gap-3 rounded border bg-white p-2 sm:grid-cols-12 items-center">
                           <div className="sm:col-span-3">
                             <Input value={opt.name} onChange={(e) => updateOption(comp.uid, grp.uid, opt.uid, { name: e.target.value })} placeholder="Tapa de asado" />
@@ -593,7 +603,11 @@ export default function ComboEditor() {
                               value={String(opt.productId === '' ? 'all' : opt.productId)}
                               onValueChange={(v) => updateOption(comp.uid, grp.uid, opt.uid, { productId: v === 'all' ? '' : Number(v) })}
                             >
-                              <SelectTrigger className="w-full"><SelectValue placeholder="Producto" /></SelectTrigger>
+                              <SelectTrigger className="w-full">
+                                <SelectValue>
+                                  {opt.productId === '' ? '— Producto —' : (optProduct?.name ?? String(opt.productId))}
+                                </SelectValue>
+                              </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="all">— Producto —</SelectItem>
                                 {products.map((p) => (
@@ -607,7 +621,11 @@ export default function ComboEditor() {
                               value={String(opt.cutOptionId === '' ? 'all' : opt.cutOptionId)}
                               onValueChange={(v) => updateOption(comp.uid, grp.uid, opt.uid, { cutOptionId: v === 'all' ? '' : Number(v) })}
                             >
-                              <SelectTrigger className="w-full"><SelectValue placeholder="Corte (opcional)" /></SelectTrigger>
+                              <SelectTrigger className="w-full">
+                                <SelectValue>
+                                  {opt.cutOptionId === '' ? '— Sin corte —' : (optCut?.name ?? String(opt.cutOptionId))}
+                                </SelectValue>
+                              </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="all">— Sin corte —</SelectItem>
                                 {cutOptionsForProduct(opt.productId).map((c) => (
@@ -629,7 +647,8 @@ export default function ComboEditor() {
                             </Button>
                           </div>
                         </div>
-                      ))}
+                          );
+                        })}
                       <Button variant="outline" size="sm" onClick={() => addOption(comp.uid, grp.uid)}>
                         <Plus className="h-4 w-4 mr-1" /> Opción
                       </Button>

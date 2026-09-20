@@ -79,7 +79,6 @@ export default function CombosAdmin() {
                   <TableHead>Combo</TableHead>
                   <TableHead>Precio</TableHead>
                   <TableHead>KG</TableHead>
-                  <TableHead>En-vío</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
@@ -98,17 +97,11 @@ export default function CombosAdmin() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">{combo.name}</p>
-                          <p className="text-xs text-muted-foreground">/{combo.slug}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>{formatARS(combo.price)}</TableCell>
                     <TableCell>{combo.totalKg} kg</TableCell>
-                    <TableCell>
-                      <Badge variant={combo.freeShipping ? 'default' : 'outline'}>
-                        {combo.freeShipping ? 'Gratis' : 'Cobrar'}
-                      </Badge>
-                    </TableCell>
                     <TableCell>
                       <div className="flex gap-1.5">
                         <Badge

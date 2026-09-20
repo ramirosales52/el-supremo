@@ -53,7 +53,6 @@ export function mapCombo(raw: any): Combo {
     name: raw.name,
     slug: raw.slug,
     description: raw.description ?? '',
-    tagline: raw.tagline ?? '',
     price: Number(raw.price),
     totalKg: Number(raw.totalKg),
     image: raw.image ?? null,

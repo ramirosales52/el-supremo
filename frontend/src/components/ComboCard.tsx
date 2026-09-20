@@ -51,7 +51,6 @@ export default function ComboCard({ combo }: ComboCardProps) {
         >
           {combo.name}
         </h3>
-        {combo.tagline && <p className="text-xs text-zinc-500 leading-snug">{combo.tagline}</p>}
 
         <ul className="mt-1 space-y-0.5 text-xs text-zinc-600">
           {combo.components.slice(0, 5).map((comp, i) => (

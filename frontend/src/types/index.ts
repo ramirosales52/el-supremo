@@ -67,7 +67,6 @@ export interface Combo {
   name: string;
   slug: string;
   description: string;
-  tagline: string;
   price: number;
   totalKg: number;
   image?: string | null;
