@@ -6,7 +6,7 @@ import { getEffectivePrice, CUTOFF_HOUR, formatARS } from '../lib/utils';
 import type { CartItem, ComboCartItem, ProductCartItem } from '../types';
 
 export default function Cart() {
-  const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart, removedCount, clearRemovedNotice, updateComboQuantity, removeCombo } = useCart();
+  const { items, removeItem, updateQuantity, totalItems, subtotal, clearCart, removedCount, clearRemovedNotice, updateComboQuantity, removeCombo, continueShoppingUrl } = useCart();
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   if (items.length === 0) {
@@ -124,7 +124,7 @@ export default function Cart() {
               </Link>
 
               <Link
-                to="/combos"
+                to={continueShoppingUrl ?? '/combos'}
                 className="block text-center text-sm text-gray-500 hover:text-gray-900 mt-3 transition-colors"
               >
                 Seguir comprando

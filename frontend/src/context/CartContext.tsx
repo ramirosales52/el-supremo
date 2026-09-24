@@ -7,6 +7,26 @@ import { comboCartKey } from '../lib/combo';
 import { supabase } from '../utils/supabase';
 
 const STORAGE_KEY = 'elsupremo_cart';
+const CONTINUE_KEY = 'elsupremo_continue_shopping';
+
+// Adónde vuelve "seguir comprando": la categoría del último producto agregado o combos.
+export type ContinueShoppingTarget =
+  | { kind: 'product'; categoryId: number }
+  | { kind: 'combo' };
+
+function loadContinueTarget(): ContinueShoppingTarget | null {
+  try {
+    const saved = localStorage.getItem(CONTINUE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed?.kind === 'combo') return { kind: 'combo' };
+      if (parsed?.kind === 'product' && typeof parsed.categoryId === 'number') {
+        return { kind: 'product', categoryId: parsed.categoryId };
+      }
+    }
+  } catch {}
+  return null;
+}
 
 // Migra carritos guardados antes de los combos (items sin "kind").
 function loadCart(): CartItem[] {
@@ -156,6 +176,7 @@ interface CartContextType {
   removeCombo: (key: string) => void;
   updateCombo: (key: string, comboId: number, slug: string, options: ComboSelectionPayload, quantity: number) => Promise<void>;
   clearCart: () => void;
+  continueShoppingUrl: string | null;
   totalItems: number;
   subtotal: number;
   removedCount: number;
@@ -167,10 +188,19 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: loadCart() });
   const [removedCount, setRemovedCount] = useState(0);
+  const [continueTarget, setContinueTarget] = useState<ContinueShoppingTarget | null>(loadContinueTarget);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
   }, [state.items]);
+
+  useEffect(() => {
+    if (continueTarget) {
+      localStorage.setItem(CONTINUE_KEY, JSON.stringify(continueTarget));
+    } else {
+      localStorage.removeItem(CONTINUE_KEY);
+    }
+  }, [continueTarget]);
 
   useEffect(() => {
     if (state.items.length === 0) return;
@@ -206,6 +236,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addItem = (product: Product, cutOption: CutOption | null, quantity: number, notes: string, supremoListo?: boolean) => {
+    setContinueTarget({ kind: 'product', categoryId: product.categoryId });
     dispatch({ type: 'ADD_PRODUCT', payload: { product, cutOption, quantity, notes, supremoListo } });
   };
 
@@ -221,6 +252,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addCombo = async (comboId: number, slug: string, options: ComboSelectionPayload, quantity: number) => {
     try {
       const snapshot = await combosApi.resolve(comboId, options);
+      setContinueTarget({ kind: 'combo' });
       dispatch({
         type: 'ADD_COMBO',
         payload: {
@@ -264,6 +296,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearRemovedNotice = () => setRemovedCount(0);
 
+  const continueShoppingUrl = continueTarget
+    ? continueTarget.kind === 'combo'
+      ? '/combos'
+      : `/productos?categoryId=${continueTarget.categoryId}`
+    : null;
+
   const totalItems = state.items.length;
 
   const subtotal = state.items.reduce((sum, item) => {
@@ -283,6 +321,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeCombo,
         updateCombo,
         clearCart,
+        continueShoppingUrl,
         totalItems,
         subtotal,
         removedCount,

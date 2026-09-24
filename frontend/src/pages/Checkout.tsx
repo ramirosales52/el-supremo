@@ -15,7 +15,7 @@ const paymentMethods: { value: PaymentMethod; label: string; description: string
 ];
 
 export default function Checkout() {
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal, clearCart, continueShoppingUrl } = useCart();
   const navigate = useNavigate();
 
   const [customerName, setCustomerName] = useState('');
@@ -90,7 +90,7 @@ export default function Checkout() {
               📅 {formatDeliveryDate(selectedDateObj)} — {DELIVERY_SLOTS.find(s => s.value === deliveryTimeSlot)?.label}
             </p>
           )}
-          <button onClick={() => navigate('/')} className="cursor-pointer px-6 py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider">
+          <button onClick={() => navigate(continueShoppingUrl ?? '/')} className="cursor-pointer px-6 py-2.5 font-semibold text-sm bg-red-600 hover:bg-red-700 text-white tracking-wider">
             Seguir comprando
           </button>
         </div>
