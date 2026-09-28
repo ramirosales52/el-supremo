@@ -111,9 +111,6 @@ export default function Cart() {
                   <span>Subtotal</span>
                   <span>{formatARS(subtotal)}</span>
                 </div>
-                <p className="text-xs text-gray-400">
-                  El costo de envío y descuentos se calculan al confirmar el pedido.
-                </p>
               </div>
 
               <Link

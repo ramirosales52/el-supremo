@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { Combo, ComboComponent } from '../types';
 import { formatARS, formatKg } from '../lib/utils';
 import { getRootGroups, formatComboQty } from '../lib/combo';
+import { getProductImageUrl } from '../api/storage';
 
 export function comboLineSummary(component: ComboComponent): string {
   if (component.dayLabel) return `${component.dayLabel}: ${component.name}`;
@@ -28,7 +29,11 @@ export default function ComboCard({ combo }: ComboCardProps) {
         to={`/combos/${combo.slug}`}
         className="h-40 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black flex flex-col items-center justify-center relative overflow-hidden"
       >
-        <span className="text-5xl opacity-30">🥩</span>
+        {combo.image ? (
+          <img src={getProductImageUrl(combo.image)} alt={combo.name} className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <span className="text-5xl opacity-30">🥩</span>
+        )}
         <span className="absolute top-2 left-2 rounded bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white tracking-wide">
           COMBO
         </span>

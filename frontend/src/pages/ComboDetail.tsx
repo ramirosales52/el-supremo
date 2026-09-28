@@ -15,6 +15,7 @@ import {
   formatComboQty,
 } from '../lib/combo';
 import { formatARS, formatKg } from '../lib/utils';
+import { getProductImageUrl } from '../api/storage';
 import { ChevronLeft, Check, Truck } from 'lucide-react';
 
 export default function ComboDetail() {
@@ -152,6 +153,13 @@ export default function ComboDetail() {
         )}
 
         <div className="mt-4 border-b border-zinc-200 pb-8">
+          {combo.image && (
+            <img
+              src={getProductImageUrl(combo.image)}
+              alt={combo.name}
+              className="mb-6 block max-h-80 object-contain"
+            />
+          )}
           <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
             <h1
               className="text-5xl md:text-6xl text-zinc-900 uppercase leading-[1.05]"
