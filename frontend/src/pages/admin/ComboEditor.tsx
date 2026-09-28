@@ -293,7 +293,7 @@ export default function ComboEditor() {
     return () => {
       cancelled = true;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isNew]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((f) => ({ ...f, [key]: value }));
@@ -414,29 +414,29 @@ export default function ComboEditor() {
       components: f.components.map((c) =>
         c.uid === compUid
           ? {
-              ...c,
-              groups: c.groups.map((g) =>
-                g.uid === grpUid
-                  ? {
-                      ...g,
-                      options: g.options.map((o) =>
-                        o.uid === optUid
-                          ? {
-                              ...o,
-                              ...patch,
-                              cutOptionId:
-                                patch.productId !== undefined
-                                  ? ''
-                                  : patch.cutOptionId !== undefined
-                                    ? patch.cutOptionId
-                                    : o.cutOptionId,
-                            }
-                          : o,
-                      ),
-                    }
-                  : g,
-              ),
-            }
+            ...c,
+            groups: c.groups.map((g) =>
+              g.uid === grpUid
+                ? {
+                  ...g,
+                  options: g.options.map((o) =>
+                    o.uid === optUid
+                      ? {
+                        ...o,
+                        ...patch,
+                        cutOptionId:
+                          patch.productId !== undefined
+                            ? ''
+                            : patch.cutOptionId !== undefined
+                              ? patch.cutOptionId
+                              : o.cutOptionId,
+                      }
+                      : o,
+                  ),
+                }
+                : g,
+            ),
+          }
           : c,
       ),
     }));
@@ -447,11 +447,11 @@ export default function ComboEditor() {
       components: f.components.map((c) =>
         c.uid === compUid
           ? {
-              ...c,
-              groups: pruneGroupTree(c.groups, [], [optUid]).map((g) =>
-                g.uid === grpUid ? { ...g, options: g.options.filter((o) => o.uid !== optUid) } : g,
-              ),
-            }
+            ...c,
+            groups: pruneGroupTree(c.groups, [], [optUid]).map((g) =>
+              g.uid === grpUid ? { ...g, options: g.options.filter((o) => o.uid !== optUid) } : g,
+            ),
+          }
           : c,
       ),
     }));
@@ -462,17 +462,17 @@ export default function ComboEditor() {
       components: f.components.map((c) =>
         c.uid === compUid
           ? {
-              ...c,
-              groups: c.groups.map((g) => {
-                if (g.uid !== grpUid) return g;
-                const idx = g.options.findIndex((o) => o.uid === optUid);
-                const target = idx + dir;
-                if (target < 0 || target >= g.options.length) return g;
-                const options = [...g.options];
-                [options[idx], options[target]] = [options[target], options[idx]];
-                return { ...g, options };
-              }),
-            }
+            ...c,
+            groups: c.groups.map((g) => {
+              if (g.uid !== grpUid) return g;
+              const idx = g.options.findIndex((o) => o.uid === optUid);
+              const target = idx + dir;
+              if (target < 0 || target >= g.options.length) return g;
+              const options = [...g.options];
+              [options[idx], options[target]] = [options[target], options[idx]];
+              return { ...g, options };
+            }),
+          }
           : c,
       ),
     }));
@@ -711,7 +711,6 @@ export default function ComboEditor() {
         </Button>
         <div>
           <h2 className="text-xl font-bold text-gray-900">{isNew ? 'Nuevo combo' : `Editar combo · ${form.name}`}</h2>
-          <p className="text-sm text-muted-foreground">Los precios los confirma el servidor al comprar</p>
         </div>
         <div className="ml-auto flex gap-2">
           <Button variant="outline" onClick={() => navigate('/admin/combos')}>

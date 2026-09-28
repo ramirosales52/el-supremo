@@ -213,11 +213,10 @@ export default function Checkout() {
                       key={value}
                       type="button"
                       onClick={() => setDeliveryDate(value)}
-                      className={`text-left px-3 py-2.5 text-sm border transition-colors cursor-pointer ${
-                        isSelected
+                      className={`text-left px-3 py-2.5 text-sm border transition-colors cursor-pointer ${isSelected
                           ? 'border-red-600 bg-red-50 text-red-900 font-medium'
                           : 'border-gray-200 hover:border-gray-400 text-gray-700'
-                      }`}
+                        }`}
                     >
                       <span className="block text-xs text-gray-400">
                         {date.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '')}
@@ -237,11 +236,10 @@ export default function Checkout() {
                 {availableSlots.map((slot) => (
                   <label
                     key={slot.value}
-                    className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${
-                      deliveryTimeSlot === slot.value
+                    className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${deliveryTimeSlot === slot.value
                         ? 'border-red-600 bg-red-50'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -263,8 +261,8 @@ export default function Checkout() {
                 <label
                   key={pm.value}
                   className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${paymentMethod === pm.value
-                      ? 'border-red-600 bg-red-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-red-600 bg-red-50'
+                    : 'border-gray-200 hover:border-gray-300'
                     }`}
                 >
                   <input
@@ -367,7 +365,6 @@ export default function Checkout() {
                       : `Envío gratis por pedido mayor a ${formatARS(FREE_SHIPPING_THRESHOLD)}`}
                   </p>
                 )}
-                <p className="text-[11px] text-gray-400">El total final lo confirma el servidor al recibir el pedido.</p>
               </div>
               <div className="border-t border-gray-200 mt-3 pt-3 flex justify-between font-bold text-gray-900">
                 <span>Total</span>
