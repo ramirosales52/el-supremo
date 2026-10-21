@@ -878,7 +878,7 @@ export default function ComboEditor() {
                         </Select>
                       </div>
                       <div className="sm:col-span-2">
-                        <Label>Día de la entrega (opcional)</Label>
+                        <Label>Texto adicional (opcional)</Label>
                         <Input value={comp.dayLabel} onChange={(e) => updateComponent(comp.uid, { dayLabel: e.target.value })} placeholder="ej: Lunes" />
                       </div>
                     </div>
